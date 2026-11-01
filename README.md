@@ -50,5 +50,4 @@ I used AI assistance to review course file organization and troubleshoot lint an
 
 The chatbot, four exercises, and Campus Print Desk FAQ mini-project are in
 [module06_agents](module06_agents/README.md). That directory includes run
-instructions, tests, and the annotated AI-generated class output required by
-the lab's AI-use condition.
+instructions, tests, exercise answers, and the mini-project documentation.

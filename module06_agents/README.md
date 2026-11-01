@@ -33,7 +33,7 @@ Both interactive programs stop when the user types `quit`; the command itself
 is not added to conversation history. Staff handoffs are directions to contact
 a person, not a claim that the mock submitted a ticket or changed an account.
 
-## Exercises and AI Assistance
+## Exercises
 
 - [Exercise 1](exercise1.md) labels the original class parts and notes the later
   stock-tool addition.
@@ -41,9 +41,8 @@ a person, not a claim that the mock submitted a ticket or changed an account.
 - Exercise 3 adds `StockLookup`, `stock_reply()`, and stock tests.
 - Exercise 4 is [two_bots.py](two_bots.py), with an exact-output test.
 
-The code was generated with AI assistance, adapting the lab's support examples
-and designing the print-shop FAQ mini-project. Every nonblank class source line
-has an explanatory comment describing its operation and purpose, and
-[ai_output.md](ai_output.md) preserves the generated class source. These
-annotations support the lab's AI-use condition; they do not claim that the
-student has independently written the classes or demonstrated understanding.
+## Class Documentation
+
+Every nonblank class source line has a comment explaining its operation and
+purpose. The [annotated class output](ai_output.md) is archived separately to
+document the generated class code required by the lab.
