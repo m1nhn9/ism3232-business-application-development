@@ -1,4 +1,4 @@
-# business_rules.py
+# module04_programming/business_rules.py
 # Author: Minh Nguyen
 
 APPROVAL_LIMIT = 1000

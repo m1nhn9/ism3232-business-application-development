@@ -2,7 +2,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from week6_lab import HIGH, LIMIT, process_records, records
+from module04_programming.week6_lab import HIGH, LIMIT, process_records, records
 
 
 def test_accumulator():
@@ -53,7 +53,9 @@ def test_summary_output(tmp_path):
         check=True,
     )
     summary = "Pending total:   $3,939.00\nNeeds review:    2\nHigh-value:      1\n"
-    assert (tmp_path / "data" / "week6_summary.txt").read_text() == summary
+    summary_path = script.parent / "data" / "week6_summary.txt"
+    assert summary_path.read_text() == summary
+    assert not (tmp_path / "data").exists()
     assert result.stdout == (
         "Pending records:\n"
         "Taylor: $1,200.00\n"

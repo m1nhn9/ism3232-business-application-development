@@ -1,4 +1,4 @@
-# debug_log.md
+# Week 8 Debug Log
 # Author: Minh Nguyen (AI-assisted debugging session)
 
 This log covers the initial AI-assisted debugging run and my guided follow-up

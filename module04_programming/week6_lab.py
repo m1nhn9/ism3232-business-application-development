@@ -1,7 +1,9 @@
-# week6_lab.py
+# module04_programming/week6_lab.py
 # Author: Minh Nguyen
 
-import os
+from pathlib import Path
+
+DATA_DIR = Path(__file__).resolve().parent / "data"
 
 records = [
     {
@@ -73,9 +75,9 @@ if __name__ == "__main__":
     for line in lines:
         print(line)
 
-    os.makedirs("data", exist_ok=True)
-    with open("data/week6_summary.txt", "w", encoding="utf-8") as f:
-        f.write("\n".join(lines) + "\n")
+    DATA_DIR.mkdir(exist_ok=True)
+    summary_path = DATA_DIR / "week6_summary.txt"
+    summary_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     print("\nRecords needing review:")
     for rec in flagged:

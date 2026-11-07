@@ -1,4 +1,4 @@
-# week8_buggy.py -- fixed Lab 8 debugging exercise
+# module04_programming/week8_buggy.py -- fixed Lab 8 debugging exercise
 # Author: Minh Nguyen
 
 records = [

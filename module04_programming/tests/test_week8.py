@@ -1,4 +1,4 @@
-from week8_buggy import format_summary, get_total, is_over_limit
+from module04_programming.week8_buggy import format_summary, get_total, is_over_limit
 
 
 def test_get_total_correct():

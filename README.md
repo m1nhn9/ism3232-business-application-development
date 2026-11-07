@@ -1,53 +1,44 @@
-# ISM3232 - Module 2: zsh Navigation and File Operations
+# ISM3232: Business Application Development
 
-## Week 2: Commands
+Coursework is organized by the course modules used throughout ISM3232. Each
+module keeps its source, exercises, documentation, tests, and local dependency
+information together.
 
-| Command | Description |
-| --- | --- |
-| `pwd` | Print the current working directory. |
-| `ls` | List visible files and folders. |
-| `ls -la` | List files, including hidden files and details. |
-| `cd ..` | Move to the parent directory. |
-| `cd ~/ism3232` | Move to the course directory. |
-| `tree -L 2` | Display the directory tree to two levels. |
-| `touch FILE` | Create an empty file or update its timestamp. |
-| `echo TEXT > FILE` | Write text to a file. |
-| `cat FILE` | Print a file's contents. |
-| `head -1 FILE` | Print the first line of a file. |
-| `cp SOURCE DEST` | Copy a file. |
-| `mv SOURCE DEST` | Move or rename a file. |
-| `python3 FILE` | Run a Python script. |
-| `rm FILE` | Delete a file after checking location and contents. |
+## Repository Structure
 
-## Week 3: Virtual Environments and .zshrc
+| Module | Topics | Coursework |
+| --- | --- | --- |
+| [Module 1](module01_setup/README.md) | Course and Python setup | Week 1 |
+| [Module 2](module02_shell_navigation/README.md) | Shell navigation, environments, search, and Git | Weeks 2–4 |
+| [Module 4](module04_programming/README.md) | Variables, collections, functions, tests, and debugging | Weeks 5–8 |
+| [Module 6](module06_agents/README.md) | Object-oriented agents, tools, local models, and Ollama | Weeks 10–11 |
 
-| Command or alias | Description |
-| --- | --- |
-| `python3 -m venv .venv` | Create a project virtual environment. |
-| `source .venv/bin/activate` | Activate the environment. |
-| `which python3` | Show the active Python interpreter. |
-| `pip install pytest ruff` | Install the lab tools. |
-| `pip freeze > requirements.txt` | Record installed package versions. |
-| `deactivate` | Leave the active virtual environment. |
-| `ll` | Run `ls -la`. |
-| `c` | Clear the terminal. |
-| `py` | Run `python3`. |
-| `gs` | Run `git status`. |
-| `ga` | Run `git add .`. |
-| `gcmsg MESSAGE` | Run `git commit -m MESSAGE`. |
-| `gp` | Run `git push`. |
-| `gl` | Run `git log --oneline`. |
-| `tree2` | Run `tree -L 2`. |
-| `mkcd NAME` | Create a directory and enter it. |
+Generated caches and machine-specific files are excluded from Git. Historical
+AI-use records remain beside the coursework they document.
+
+## Run the Tests
+
+From the repository root:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+ruff format --check .
+ruff check .
+pytest -v
+```
+
+Module 6 has additional Ollama dependencies and its own
+[`requirements.txt`](module06_agents/requirements.txt).
 
 ## AI Use Statement
-I used AI assistance to review course file organization and troubleshoot lint and test issues. I reviewed the resulting files and ran Ruff and pytest.
 
-## Additional Links
-- [ISM3232](https://markumreed.github.io/ism3232/index.html)
+I used AI assistance to review course file organization, troubleshoot lint and
+test issues, and implement documented lab work. I reviewed the resulting files
+and verified them with Ruff and pytest. Detailed disclosures required by the
+agent labs are stored in `module06_agents`.
 
-## Week 10: OOP for Agents
+## Course Link
 
-The chatbot, four exercises, and Campus Print Desk FAQ mini-project are in
-[module06_agents](module06_agents/README.md). That directory includes run
-instructions, tests, exercise answers, and the mini-project documentation.
+[ISM3232 course materials](https://markumreed.github.io/ism3232/index.html)

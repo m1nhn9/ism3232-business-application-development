@@ -1,4 +1,4 @@
-# tests/test_week4.py
+# module02_shell_navigation/tests/test_week4.py
 
 
 def test_always_passes():
@@ -11,6 +11,6 @@ def test_string_is_lowercase():
 
 
 def test_path_segments():
-    path = "/Users/yourname/ism3232/module02_zsh"
+    path = "/Users/yourname/ism3232/module02_shell_navigation"
     parts = path.split("/")
     assert "ism3232" in parts

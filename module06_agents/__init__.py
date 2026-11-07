@@ -1,1 +1,1 @@
-"""Week 10: mock assistants built with classes and composition."""
+"""Weeks 10–11: composed assistants with tools and interchangeable models."""
