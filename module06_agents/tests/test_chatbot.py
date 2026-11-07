@@ -1,13 +1,35 @@
 from module06_agents.chatbot import SupportChatbot
+from module06_agents.echo_model import EchoModel
+from module06_agents.mock_model import MockModel
 from module06_agents.order_tool import OrderLookup
 from module06_agents.stock_tool import StockLookup
+
+
+# Define an unavailable stand-in so the chatbot's own fallback can be tested.
+class SilentModel:
+    # Explain that this object deliberately provides no answer.
+    """A model that never has an answer, like Ollama when it is switched off."""
+
+    # Match the reply interface used by every model component in the lab.
+    def reply(self, instructions, history):
+        # Signal unavailability exactly as the real adapter does on expected errors.
+        return None
 
 
 def make_bot():
     """Give each test a fresh chatbot, tools, and conversation history."""
     order_tool = OrderLookup({"A100": "shipped", "A101": "processing"})
     stock_tool = StockLookup({"rain jacket": 12, "day pack": 0})
-    return SupportChatbot("Sunny", "Be friendly.", order_tool, stock_tool)
+    return SupportChatbot("Sunny", "Be friendly.", order_tool, stock_tool, MockModel())
+
+
+def make_bot_with_silent_model():
+    """Build a chatbot whose model never answers."""
+    order_tool = OrderLookup({"A100": "shipped", "A101": "processing"})
+    stock_tool = StockLookup({"rain jacket": 12, "day pack": 0})
+    return SupportChatbot(
+        "Sunny", "Be friendly.", order_tool, stock_tool, SilentModel()
+    )
 
 
 def test_tool_finds_known_status():
@@ -47,6 +69,26 @@ def test_address_change_goes_to_a_human():
 def test_unknown_request_gets_a_safe_reply():
     bot = make_bot()
     assert "not sure" in bot.respond("What is the weather today?")
+
+
+def test_other_messages_go_to_the_model():
+    bot = make_bot()
+    assert bot.respond("hello") == "Hello! How can I help you today?"
+
+
+def test_safe_reply_when_the_model_has_no_answer():
+    bot = make_bot_with_silent_model()
+    assert "try again" in bot.respond("hello")
+
+
+def test_order_rule_does_not_need_the_model():
+    bot = make_bot_with_silent_model()
+    assert bot.respond("Where is order A100?") == "Order A100 is shipped."
+
+
+def test_handoff_rule_does_not_need_the_model():
+    bot = make_bot_with_silent_model()
+    assert "human" in bot.respond("Please change my shipping address")
 
 
 def test_two_chatbots_keep_separate_histories():
@@ -101,8 +143,9 @@ def test_handoff_takes_priority_over_order_lookup():
 def test_shared_tools_do_not_share_chatbot_history():
     order_tool = OrderLookup({"A100": "shipped"})
     stock_tool = StockLookup({"rain jacket": 12})
-    sunny = SupportChatbot("Sunny", "Be cheerful.", order_tool, stock_tool)
-    river = SupportChatbot("River", "Be formal.", order_tool, stock_tool)
+    model = MockModel()
+    sunny = SupportChatbot("Sunny", "Be cheerful.", order_tool, stock_tool, model)
+    river = SupportChatbot("River", "Be formal.", order_tool, stock_tool, model)
     sunny.respond("hello")
     sunny.respond("Where is order A100?")
     river.respond("hello")
@@ -111,4 +154,11 @@ def test_shared_tools_do_not_share_chatbot_history():
     assert sunny.history is not river.history
     assert len(sunny.history) == 4
     assert len(river.history) == 2
-    assert "River" in river.history[1]["content"]
+    assert river.history[1]["content"] == "Hello! How can I help you today?"
+
+
+def test_chatbot_works_with_any_model_that_has_a_reply_method():
+    order_tool = OrderLookup({"A100": "shipped"})
+    stock_tool = StockLookup({"rain jacket": 12})
+    bot = SupportChatbot("Sunny", "Be friendly.", order_tool, stock_tool, EchoModel())
+    assert bot.respond("good morning") == "You said: good morning"

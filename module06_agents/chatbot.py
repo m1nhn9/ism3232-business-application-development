@@ -6,21 +6,23 @@ HANDOFF_WORDS = ["address", "payment", "card"]
 
 # Define the conversation object separately from its order and stock tools.
 class SupportChatbot:
-    # Identify the rule-based behavior so it is not mistaken for a real model.
-    """A mock support chatbot whose replies come from keyword rules."""
+    # Clarify that exact rules protect important paths while a model writes the rest.
+    """A support chatbot. Rules handle what must be right. A model handles the rest."""
 
-    # Receive both tools so the chatbot gains abilities through composition.
-    def __init__(self, name, instructions, order_tool, stock_tool):
+    # Receive both tools and a model so each ability remains a separate component.
+    def __init__(self, name, instructions, order_tool, stock_tool, model):
         # Explain which state belongs to each newly created chatbot.
         """Store identity, instructions, tools, and a separate history."""
         # Store this object's display name for personalized greetings.
         self.name = name
-        # Save instructions for future model work; this mock does not use them.
+        # Save the system instructions that will be sent with each model request.
         self.instructions = instructions
         # Compose the chatbot with an existing tool rather than copying orders.
         self.order_tool = order_tool
         # Store the second tool so inventory stays in a separate object.
         self.stock_tool = stock_tool
+        # Store the supplied model so tests can replace the real model with a mock.
+        self.model = model
         # Create a new list per object so two chatbots do not share history.
         self.history = []
 
@@ -37,10 +39,10 @@ class SupportChatbot:
         # Give the response to the CLI or test without printing inside the class.
         return reply
 
-    # Keep routing separate from history recording to make rule order readable.
+    # Keep routing separate so exact rules visibly run before model-generated text.
     def choose_reply(self, user_message):
-        # State that these rules, not a model, determine the response.
-        """Choose a mock reply with handoff rules taking priority."""
+        # Describe the safety boundary between deterministic rules and the model.
+        """Use a rule when one applies. Otherwise ask the model."""
         # Normalize only the matching text while preserving original history.
         text = user_message.lower()
         # Check sensitive requests first even if they also mention an order.
@@ -55,12 +57,21 @@ class SupportChatbot:
         if "stock" in text:
             # Let the stock response method identify the product and its count.
             return self.stock_reply(user_message)
-        # Recognize the lab's greeting after checking more specific requests.
-        if "hello" in text:
-            # Use this object's name so shared class code greets as each bot.
-            return f"Hello! I'm {self.name}. I can check an order status for you."
-        # Admit the limited capability instead of inventing an unsupported answer.
-        return "I'm not sure how to help with that. I can check an order status."
+        # Send all remaining language tasks to the interchangeable model component.
+        return self.model_reply()
+
+    # Isolate model failure handling so every caller receives a usable string.
+    def model_reply(self):
+        # Explain that a missing model answer is converted into a safe response.
+        """Ask the model for a reply. Give a safe answer if the model has none."""
+        # Give the model its instructions and the history containing the new message.
+        reply = self.model.reply(self.instructions, self.history)
+        # Treat None as an unavailable model rather than recording None in history.
+        if reply is None:
+            # Ask the customer to retry without claiming that a request was handled.
+            return "Sorry, I can't answer that right now. Please try again in a moment."
+        # Return model text unchanged so the caller can record and display it.
+        return reply
 
     # Keep escalation checks in a method so routing can prioritize them.
     def needs_human(self, text):

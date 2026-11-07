@@ -1,5 +1,17 @@
+from module06_agents.mock_model import MockModel
 from module06_agents.my_assistant import PrintShopAssistant
 from module06_agents.my_tool import FAQBook
+
+
+# Define an unavailable model so the assistant's safe fallback is tested directly.
+class SilentModel:
+    # Explain that None represents an expected model outage.
+    """A model that never has an answer, like Ollama when it is switched off."""
+
+    # Keep the common model signature even though this stand-in ignores its inputs.
+    def reply(self, instructions, history):
+        # Return the same failure signal produced by OllamaModel on expected errors.
+        return None
 
 
 def make_assistant():
@@ -10,7 +22,7 @@ def make_assistant():
             "pickup": "Bring your order number to the print desk.",
         }
     )
-    return PrintShopAssistant("Piper", "Be clear and helpful.", tool)
+    return PrintShopAssistant("Piper", "Be clear and helpful.", tool, MockModel())
 
 
 def test_faq_question_uses_the_supplied_tool():
@@ -43,6 +55,29 @@ def test_unsupported_request_gets_a_safe_reply():
     assert "not sure" in assistant.respond("What is the weather tomorrow?")
 
 
+def test_other_messages_go_to_the_model():
+    assistant = make_assistant()
+    assert assistant.respond("hello") == "Hello! How can I help you today?"
+
+
+def test_model_failure_gets_the_assistants_safe_reply():
+    tool = FAQBook({"hours": "Open weekdays."})
+    assistant = PrintShopAssistant("Piper", "Be clear.", tool, SilentModel())
+    assert "try again" in assistant.respond("What is your favorite color?")
+
+
+def test_tool_rule_does_not_need_the_model():
+    tool = FAQBook({"hours": "Open weekdays."})
+    assistant = PrintShopAssistant("Piper", "Be clear.", tool, SilentModel())
+    assert assistant.respond("What are your hours?") == "Open weekdays."
+
+
+def test_handoff_rule_does_not_need_the_model():
+    tool = FAQBook({"hours": "Open weekdays."})
+    assistant = PrintShopAssistant("Piper", "Be clear.", tool, SilentModel())
+    assert "staff" in assistant.respond("Please cancel my order")
+
+
 def test_history_records_exact_roles_and_content():
     assistant = make_assistant()
     greeting = assistant.respond("hello")
@@ -57,7 +92,7 @@ def test_history_records_exact_roles_and_content():
 
 def test_missing_answer_is_not_invented():
     tool = FAQBook({"hours": None})
-    assistant = PrintShopAssistant("Piper", "Be clear.", tool)
+    assistant = PrintShopAssistant("Piper", "Be clear.", tool, MockModel())
     assert assistant.respond("What are your hours?") == (
         "I don't have that answer. Please ask the print desk staff."
     )
