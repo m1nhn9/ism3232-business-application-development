@@ -28,6 +28,29 @@ or claim to perform those actions.
 
 ## Run
 
+## Week 12 Tools and Approval
+
+Piper handled “Please print essay.pdf for Dana Cruz” by filing a waiting request,
+and the real-model run accepted one job only after staff approved it.
+The checked door refused a FakeModel request naming Dana Cruz when the customer
+had supplied only essay.pdf, leaving the queue empty.
+I added instructions to ask for the PDF filename and full name before requesting
+printing and to explain that printing still needs staff approval.
+The greeting instruction tells the model to greet rather than invoke a tool.
+Refunds, cancellations, payment questions, and complaints still go to a person
+before the model is called.
+
+The bounded loop is shared by Sunny and Piper; each has its own toolbox and
+handoff rules. Queues and accepted jobs are demonstrations stored in memory
+and reset when the program exits. Staff review follows quit in both main files.
+Week 11 descriptions above are historical; Week 12 now uses decide and records
+tool results explicitly in history.
+
+See [Week 12 answers](week12_answers.md) and the
+[annotated class archive](week12_ai_output.md).
+
+## Running the Programs
+
 From this directory:
 
 ```sh

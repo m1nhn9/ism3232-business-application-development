@@ -3,6 +3,8 @@
 from my_assistant import PrintShopAssistant
 from my_tool import FAQBook
 from ollama_model import OllamaModel
+from print_queue import PrintQueue
+from print_toolbox import PrintToolbox
 
 MODEL_NAME = "granite4.1:3b"
 
@@ -11,7 +13,11 @@ Answer in one short sentence.
 The print desk is in the Student Union, room 118.
 Customers should bring their order number when collecting a print job.
 The desk accepts PDF files from USB drives.
-Only state facts that appear in these instructions.
+If the customer only says hello, greet them and ask how you can help.
+Use check_faq for hours, pricing, and pickup questions.
+To request printing, ask for the PDF filename and the customer's full name.
+Print requests wait for staff approval; never claim a job is printed.
+Only state facts that appear in these instructions or tool results.
 If you do not know, say you do not know and offer to pass the customer to print desk staff."""
 
 ANSWERS = {
@@ -23,11 +29,13 @@ ANSWERS = {
 
 if __name__ == "__main__":
     faq_tool = FAQBook(ANSWERS)
+    queue = PrintQueue()
+    tools = PrintToolbox(faq_tool, queue)
     model = OllamaModel(MODEL_NAME)
     assistant = PrintShopAssistant(
         "Piper",
         INSTRUCTIONS,
-        faq_tool,
+        tools,
         model,
     )
 
@@ -38,3 +46,10 @@ if __name__ == "__main__":
         user_message = input("You: ")
 
     print(f"Messages in this conversation: {len(assistant.history)}")
+    print("Print desk review")
+    for request in queue.waiting():
+        number = request["number"]
+        print(f"Request {number}: {request['customer']}, {request['document']}")
+        answer = input("Approve? yes or no: ")
+        print(queue.approve(number) if answer == "yes" else queue.reject(number))
+    print(f"Accepted jobs: {len(queue.jobs)}")

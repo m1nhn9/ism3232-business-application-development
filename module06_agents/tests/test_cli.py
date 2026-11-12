@@ -18,7 +18,7 @@ def run_cli(script, messages=""):
 
 def test_two_bots_output_matches_the_exercise():
     assert run_cli("two_bots.py") == (
-        "Sunny 4\nRiver 2\n"
+        "Sunny 5\nRiver 2\n"
         "Hello! How can I help you today?\n"
         "Hello! How can I help you today?\n"
         "You are cheerful and brief.\n"

@@ -1,132 +1,118 @@
+# chatbot.py
 # Author: Minh Nguyen
-# AI-assisted source; explanations accompany each class line as the lab requires.
 
-HANDOFF_WORDS = ["address", "payment", "card"]
+HANDOFF_WORDS = ["payment", "card"]
+MAX_TOOL_ROUNDS = 3
 
 
-# Define the conversation object separately from its order and stock tools.
+# Group this component’s state and behavior behind one interface.
 class SupportChatbot:
-    # Clarify that exact rules protect important paths while a model writes the rest.
-    """A support chatbot. Rules handle what must be right. A model handles the rest."""
+    # Document the interface for readers and tool-description generation.
+    """A support chatbot. The model decides. The toolbox checks every tool request."""
 
-    # Receive both tools and a model so each ability remains a separate component.
-    def __init__(self, name, instructions, order_tool, stock_tool, model):
-        # Explain which state belongs to each newly created chatbot.
-        """Store identity, instructions, tools, and a separate history."""
-        # Store this object's display name for personalized greetings.
+    # Define __init__ so callers can Set up one chatbot with its own name, instructions, tools, model, and history.
+    def __init__(self, name, instructions, tools, model):
+        # Document the interface for readers and tool-description generation.
+        """Set up one chatbot with its own name, instructions, tools, model, and history."""
+        # Store this value for subsequent validation or processing.
         self.name = name
-        # Save the system instructions that will be sent with each model request.
+        # Store this value for subsequent validation or processing.
         self.instructions = instructions
-        # Compose the chatbot with an existing tool rather than copying orders.
-        self.order_tool = order_tool
-        # Store the second tool so inventory stays in a separate object.
-        self.stock_tool = stock_tool
-        # Store the supplied model so tests can replace the real model with a mock.
+        # Store this value for subsequent validation or processing.
+        self.tools = tools
+        # Store this value for subsequent validation or processing.
         self.model = model
-        # Create a new list per object so two chatbots do not share history.
+        # Store this value for subsequent validation or processing.
         self.history = []
 
-    # Offer one public entry point that records each conversation turn.
+    # Define respond so callers can Record the user's message, choose a reply, record it, and return it.
     def respond(self, user_message):
-        # Describe the recording and return contract for callers and tests.
-        """Record the user message and reply, then return the reply."""
-        # Keep the original message and role so the transcript is complete.
+        # Document the interface for readers and tool-description generation.
+        """Record the user's message, choose a reply, record it, and return it."""
+        # Record or delegate this operation through the component’s interface.
         self.history.append({"role": "user", "content": user_message})
-        # Choose the response before saving it as the assistant's next message.
+        # Store this value for subsequent validation or processing.
         reply = self.choose_reply(user_message)
-        # Record the assistant role and exact response to complete the turn.
+        # Record or delegate this operation through the component’s interface.
         self.history.append({"role": "assistant", "content": reply})
-        # Give the response to the CLI or test without printing inside the class.
+        # Return the result to the caller without performing terminal I/O.
         return reply
 
-    # Keep routing separate so exact rules visibly run before model-generated text.
+    # Define choose_reply so callers can Pass payment questions to a person. Send everything else to the model.
     def choose_reply(self, user_message):
-        # Describe the safety boundary between deterministic rules and the model.
-        """Use a rule when one applies. Otherwise ask the model."""
-        # Normalize only the matching text while preserving original history.
-        text = user_message.lower()
-        # Check sensitive requests first even if they also mention an order.
-        if self.needs_human(text):
-            # Request human handling because this tool cannot change accounts.
+        # Document the interface for readers and tool-description generation.
+        """Pass payment questions to a person. Send everything else to the model."""
+        # Check this condition before allowing the next operation.
+        if self.needs_human(user_message.lower()):
+            # Return the result to the caller without performing terminal I/O.
             return "I can't help with that here. I'm passing you to a human agent."
-        # Route order questions to the tool-backed order response method.
-        if "order" in text:
-            # Pass the original message to preserve its ID for tool matching.
-            return self.order_reply(user_message)
-        # Route stock questions separately to keep the data sources distinct.
-        if "stock" in text:
-            # Let the stock response method identify the product and its count.
-            return self.stock_reply(user_message)
-        # Send all remaining language tasks to the interchangeable model component.
+        # Return the result to the caller without performing terminal I/O.
         return self.model_reply()
 
-    # Isolate model failure handling so every caller receives a usable string.
-    def model_reply(self):
-        # Explain that a missing model answer is converted into a safe response.
-        """Ask the model for a reply. Give a safe answer if the model has none."""
-        # Give the model its instructions and the history containing the new message.
-        reply = self.model.reply(self.instructions, self.history)
-        # Treat None as an unavailable model rather than recording None in history.
-        if reply is None:
-            # Ask the customer to retry without claiming that a request was handled.
-            return "Sorry, I can't answer that right now. Please try again in a moment."
-        # Return model text unchanged so the caller can record and display it.
-        return reply
-
-    # Keep escalation checks in a method so routing can prioritize them.
+    # Define needs_human so callers can Return True if the message is about something a person must handle.
     def needs_human(self, text):
-        # Explain what True means to the response router.
-        """Return True when the message contains a handoff keyword."""
-        # Examine each configured keyword so one match is enough to escalate.
+        # Document the interface for readers and tool-description generation.
+        """Return True if the message is about something a person must handle."""
+        # Process the collection or bounded loop in a controlled order.
         for word in HANDOFF_WORDS:
-            # Test whether the normalized message contains this sensitive topic.
+            # Check this condition before allowing the next operation.
             if word in text:
-                # Stop searching because the request needs a person.
+                # Return the result to the caller without performing terminal I/O.
                 return True
-        # Allow ordinary automated handling when no handoff word matched.
+        # Return the result to the caller without performing terminal I/O.
         return False
 
-    # Separate order replies from routing so the tool owns order knowledge.
-    def order_reply(self, user_message):
-        # Describe that this method delegates order lookup to the composed tool.
-        """Use the order tool to answer an order question."""
-        # Ask the tool to locate a known ID instead of parsing orders here.
-        order_id = self.order_tool.find_order_id(user_message)
-        # Treat a missing known ID as incomplete input rather than guessing.
-        if order_id is None:
-            # Ask for clarification so unknown IDs do not cause a crash.
-            return "Which order? Please send an order ID like A100."
-        # Read the actual stored status from the tool after finding the ID.
-        status = self.order_tool.find_status(order_id)
-        # Present the tool's result in the format required by the lab.
-        return f"Order {order_id} is {status}."
+    # Define model_reply so callers can Ask the model. Run each tool it asks for, then ask again, up to a limit.
+    def model_reply(self):
+        # Document the interface for readers and tool-description generation.
+        """Ask the model. Run each tool it asks for, then ask again, up to a limit."""
+        # Store this value for subsequent validation or processing.
+        rounds = 0
+        # Process the collection or bounded loop in a controlled order.
+        while rounds < MAX_TOOL_ROUNDS:
+            # Store this value for subsequent validation or processing.
+            tool_list = self.tools.tool_list()
+            # Store this value for subsequent validation or processing.
+            decision = self.model.decide(self.instructions, self.history, tool_list)
+            # Check this condition before allowing the next operation.
+            if decision is None:
+                # Return the result to the caller without performing terminal I/O.
+                return "Sorry, I can't answer that right now. Please try again in a moment."
+            # Check this condition before allowing the next operation.
+            if "text" in decision:
+                # Return the result to the caller without performing terminal I/O.
+                return decision["text"]
+            # Store this value for subsequent validation or processing.
+            name = decision["tool"]
+            # Store this value for subsequent validation or processing.
+            arguments = decision["arguments"]
+            # Store this value for subsequent validation or processing.
+            result = self.tools.run(name, arguments, self.history)
+            # Record or delegate this operation through the component’s interface.
+            self.history.append(
+                {
+                    "role": "tool",
+                    "tool_name": name,
+                    "arguments": arguments,
+                    "content": result,
+                }
+            )
+            # Advance the running count to track progress.
+            rounds += 1
+        # Return the result to the caller without performing terminal I/O.
+        return "Sorry, I couldn't finish that. I'm passing you to a human agent."
 
-    # Add stock behavior through a method and a tool rather than stock data here.
-    def stock_reply(self, user_message):
-        # Describe the inventory lookup performed for the response router.
-        """Use the stock tool to answer a product availability question."""
-        # Delegate product recognition to the object that owns inventory data.
-        product = self.stock_tool.find_product(user_message)
-        # Stop when the question does not mention a known product.
-        if product is None:
-            # Ask for a product instead of fabricating availability.
-            return "Which product? Please name the item you want me to check."
-        # Fetch the inventory count, including zero for an out-of-stock item.
-        count = self.stock_tool.count_for(product)
-        # Return the actual inventory count in the exercise's expected format.
-        return f"We have {count} of the {product} in stock."
-
-    # Implement Exercise 2 without counting assistant replies as user messages.
+    # Define count_user_messages so callers can Return how many messages the user has sent so far.
     def count_user_messages(self):
-        # Explain the distinction between user count and total history length.
-        """Return the number of user-role entries in this bot's history."""
-        # Begin a new accumulator each time the count is requested.
+        # Document the interface for readers and tool-description generation.
+        """Return how many messages the user has sent so far."""
+        # Store this value for subsequent validation or processing.
         count = 0
-        # Examine only this object's history so conversations stay independent.
+        # Process the collection or bounded loop in a controlled order.
         for message in self.history:
-            # Count user turns while skipping assistant-role entries.
+            # Check this condition before allowing the next operation.
             if message["role"] == "user":
-                # Add one for the matching history entry.
+                # Advance the running count to track progress.
                 count += 1
-        # Return the finished count so callers and tests can use it.
+        # Return the result to the caller without performing terminal I/O.
         return count

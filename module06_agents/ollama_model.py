@@ -1,40 +1,86 @@
+# ollama_model.py
 # Author: Minh Nguyen
-# AI-assisted source; explanations accompany each class line as the lab requires.
 
 from ollama import ResponseError, chat
 
 
-# Wrap Ollama behind the same reply method used by the mock and echo models.
+# Group this component’s state and behavior behind one interface.
 class OllamaModel:
-    # Describe that this adapter talks to a model running on the local computer.
+    # Document the interface for readers and tool-description generation.
     """A real AI model that runs on this computer through Ollama."""
 
-    # Accept a model name so callers decide which downloaded model to use.
+    # Define __init__ so callers can Remember which model to ask.
     def __init__(self, model_name):
-        # Explain the one setting retained by this adapter instance.
+        # Document the interface for readers and tool-description generation.
         """Remember which model to ask."""
-        # Store the requested Ollama model identifier for every later reply.
+        # Store this value for subsequent validation or processing.
         self.model_name = model_name
 
-    # Present the common model interface expected by both chatbot classes.
+    # Define reply so callers can Send the instructions and the conversation to the model. Return its reply.
     def reply(self, instructions, history):
-        # Describe the successful reply and the safe failure signal.
-        """Send instructions and history to the model, or return None on failure."""
-        # Put private behavioral instructions first with the system role.
+        # Document the interface for readers and tool-description generation.
+        """Send the instructions and the conversation to the model. Return its reply."""
+        # Store this value for subsequent validation or processing.
         messages = [{"role": "system", "content": instructions}]
-        # Add all user and assistant messages so the stateless model has context.
+        # Store this value for subsequent validation or processing.
         messages = messages + history
-        # Mark the external model call as the operation that may be unavailable.
+        # Handle the expected model connection and response failures.
         try:
-            # Ask the configured local model to continue the supplied conversation.
+            # Store this value for subsequent validation or processing.
             response = chat(model=self.model_name, messages=messages)
-        # Catch a stopped or unreachable Ollama server without hiding other bugs.
         except ConnectionError:
-            # Signal model unavailability so the chatbot can choose safe wording.
+            # Return the result to the caller without performing terminal I/O.
             return None
-        # Catch Ollama errors such as a requested model that was not downloaded.
         except ResponseError:
-            # Use the same missing-answer signal for every expected Ollama failure.
+            # Return the result to the caller without performing terminal I/O.
             return None
-        # Extract only the assistant text from Ollama's structured response object.
+        # Return the result to the caller without performing terminal I/O.
         return response.message.content
+
+    # Define decide so callers can Send the conversation and the tools. Return a reply or a tool request.
+    def decide(self, instructions, history, tools):
+        # Document the interface for readers and tool-description generation.
+        """Send the conversation and the tools. Return a reply or a tool request."""
+        # Store this value for subsequent validation or processing.
+        messages = [{"role": "system", "content": instructions}]
+        # Process the collection or bounded loop in a controlled order.
+        for message in history:
+            # Check this condition before allowing the next operation.
+            if message["role"] == "tool":
+                # Store this value for subsequent validation or processing.
+                messages = messages + self.tool_messages(message)
+            else:
+                # Record or delegate this operation through the component’s interface.
+                messages.append(message)
+        # Handle the expected model connection and response failures.
+        try:
+            # Store this value for subsequent validation or processing.
+            response = chat(model=self.model_name, messages=messages, tools=tools)
+        except ConnectionError:
+            # Return the result to the caller without performing terminal I/O.
+            return None
+        except ResponseError:
+            # Return the result to the caller without performing terminal I/O.
+            return None
+        # Check this condition before allowing the next operation.
+        if response.message.tool_calls:
+            # Store this value for subsequent validation or processing.
+            call = response.message.tool_calls[0]
+            # Return the result to the caller without performing terminal I/O.
+            return {"tool": call.function.name, "arguments": call.function.arguments}
+        # Return the result to the caller without performing terminal I/O.
+        return {"text": response.message.content}
+
+    # Define tool_messages so callers can Turn one tool entry into the two messages Ollama expects.
+    def tool_messages(self, message):
+        # Document the interface for readers and tool-description generation.
+        """Turn one tool entry into the two messages Ollama expects."""
+        # Store this value for subsequent validation or processing.
+        name = message["tool_name"]
+        # Store this value for subsequent validation or processing.
+        request = {"function": {"name": name, "arguments": message["arguments"]}}
+        # Return the result to the caller without performing terminal I/O.
+        return [
+            {"role": "assistant", "content": "", "tool_calls": [request]},
+            {"role": "tool", "tool_name": name, "content": message["content"]},
+        ]

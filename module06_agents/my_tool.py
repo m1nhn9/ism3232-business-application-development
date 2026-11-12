@@ -4,6 +4,23 @@
 
 # Define a read-only FAQ tool so business answers stay outside conversation code.
 class FAQBook:
+    # Define check_faq so callers can Read a verified print-desk FAQ answer.
+    def check_faq(self, topic):
+        # Document the interface for readers and tool-description generation.
+        """Read a verified print-desk FAQ answer.
+
+        Args:
+            topic: The topic supplied by the customer: hours, pricing, or pickup.
+        """
+        # Store this value for subsequent validation or processing.
+        found = self.find_topic(topic)
+        # Check this condition before allowing the next operation.
+        if found is None:
+            # Return the result to the caller without performing terminal I/O.
+            return "Which topic? I can check hours, pricing, or pickup."
+        # Return the result to the caller without performing terminal I/O.
+        return self.answer_for(found) or "Please ask the print desk staff."
+
     # Describe the tool's job for readers and help().
     """Find known FAQ topics and retrieve their stored answers."""
 

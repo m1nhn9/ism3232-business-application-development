@@ -4,6 +4,23 @@
 
 # Define an independent stock tool so the chatbot does not own inventory data.
 class StockLookup:
+    # Define check_stock so callers can Check how many of one product are in stock.
+    def check_stock(self, item):
+        # Document the interface for readers and tool-description generation.
+        """Check how many of one product are in stock.
+
+        Args:
+            item: The product name, like rain jacket.
+        """
+        # Store this value for subsequent validation or processing.
+        product = self.find_product(item)
+        # Check this condition before allowing the next operation.
+        if product is None:
+            # Return the result to the caller without performing terminal I/O.
+            return "That product was not found."
+        # Return the result to the caller without performing terminal I/O.
+        return f"We have {self.count_for(product)} of the {product} in stock."
+
     # Explain the tool's responsibility for readers and help().
     """Find known products and read their stock counts."""
 
