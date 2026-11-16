@@ -2,36 +2,36 @@
 # Author: Minh Nguyen
 
 
-# Group this component’s state and behavior behind one interface.
+# Provide simple keyword decisions when Ollama is unavailable.
 class KeywordModel:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """A stand-in model that decides with keyword rules. It needs no AI."""
 
-    # Define decide so callers can Return a reply or a tool request, based on the last message.
+    # Return either reply text or a tool request.
     def decide(self, instructions, history, tools):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return a reply or a tool request, based on the last message."""
-        # Store this value for subsequent validation or processing.
+        # Read the latest message or tool result.
         last = history[-1]
-        # Check this condition before allowing the next operation.
+        # After a tool call, use its result as the reply.
         if last["role"] == "tool":
-            # Return the result to the caller without performing terminal I/O.
+            # Return the checked result or the message the caller should display.
             return {"text": last["content"]}
-        # Store this value for subsequent validation or processing.
+        # Ignore capitalization when matching keywords.
         text = last["content"].lower()
-        # Check this condition before allowing the next operation.
+        # Use the order lookup for messages containing order.
         if "order" in text:
-            # Return the result to the caller without performing terminal I/O.
+            # Return the checked result or the message the caller should display.
             return {"tool": "look_up_order", "arguments": {"order_id": last["content"]}}
-        # Check this condition before allowing the next operation.
+        # Use the stock tool for messages containing stock.
         if "stock" in text:
-            # Return the result to the caller without performing terminal I/O.
+            # Return the checked result or the message the caller should display.
             return {"tool": "check_stock", "arguments": {"item": last["content"]}}
-        # Check this condition before allowing the next operation.
+        # Recognize the fallback model's greeting.
         if "hello" in text:
-            # Return the result to the caller without performing terminal I/O.
+            # Return the checked result or the message the caller should display.
             return {"text": "Hello! How can I help you today?"}
-        # Return the result to the caller without performing terminal I/O.
+        # Return the checked result or the message the caller should display.
         return {
             "text": "I'm not sure how to help with that. I can check an order or stock."
         }

@@ -13,85 +13,85 @@ versions of the project.
 # Author: Minh Nguyen
 
 
-# Group this component’s state and behavior behind one interface.
+# Keep order data outside the chatbot.
 class OrderLookup:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """A tool that knows about orders. It knows nothing about chatting."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self, orders):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Store the orders this tool can look up."""
-        # Save orders in self.orders for the following steps.
+        # Keep the order records supplied by the caller.
         self.orders = orders
 
     # Return the first known order ID mentioned in text, or None.
     def find_order_id(self, text):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return the first known order ID mentioned in text, or None."""
-        # Check each order_id in self.orders.
+        # Search the known order IDs.
         for order_id in self.orders:
-            # Check order_id in text.upper() before choosing the next action.
+            # Recognize known IDs even when the message uses lowercase.
             if order_id in text.upper():
-                # Send order_id back to the caller.
+                # Return the recognized order key.
                 return order_id
-        # Send None back to the caller.
+        # Signal that no result is available.
         return None
 
     # Return the status of one order, or None if there is no such order.
     def find_status(self, order_id):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return the status of one order, or None if there is no such order."""
-        # Check order_id in self.orders before choosing the next action.
+        # Check that the exact order key exists before reading it.
         if order_id in self.orders:
-            # Send self.orders[order_id]['status'] back to the caller.
+            # Return the checked result or the message the caller should display.
             return self.orders[order_id]["status"]
-        # Send None back to the caller.
+        # Signal that no result is available.
         return None
 
     # Look up the status of one order.
     def look_up_order(self, order_id):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Look up the status of one order.
 
         Args:
             order_id: The order ID, like A100.
         """
-        # Save self.find_order_id(order_id) in found for the following steps.
+        # Find a known order ID in the supplied text.
         found = self.find_order_id(order_id)
-        # Check found is None before choosing the next action.
+        # Handle an unknown ID without inventing an order.
         if found is None:
-            # Send 'No order with that ID was found. Order IDs look like A100.' back to the caller.
+            # Ask for a valid order ID.
             return "No order with that ID was found. Order IDs look like A100."
-        # Send f'Order {found} is {self.find_status(found)}.' back to the caller.
+        # Return the checked result or the message the caller should display.
         return f"Order {found} is {self.find_status(found)}."
 
     # Change the shipping address on one order. Only an approval calls this.
     def change_address(self, order_id, new_address):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Change the shipping address on one order. Only an approval calls this."""
-        # Save new_address in self.orders[order_id]['address'] for the following steps.
+        # Apply the address change after the queue approves it.
         self.orders[order_id]["address"] = new_address
 
     # Say whether one order can be returned yet.
     def check_return(self, order_id):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Say whether one order can be returned yet.
 
         Args:
             order_id: The order ID, like A100.
         """
-        # Save self.find_order_id(order_id) in found for the following steps.
+        # Find a known order ID in the supplied text.
         found = self.find_order_id(order_id)
-        # Check found is None before choosing the next action.
+        # Handle an unknown ID without inventing an order.
         if found is None:
-            # Send 'No order with that ID was found. Order IDs look like A100.' back to the caller.
+            # Ask for a valid order ID.
             return "No order with that ID was found. Order IDs look like A100."
-        # Check self.find_status(found) == 'delivered' before choosing the next action.
+        # Allow returns only after delivery under the lab's policy.
         if self.find_status(found) == "delivered":
-            # Send f'Order {found} was delivered, so it can be returned within 30 days.' back to the caller.
+            # Explain the lab's return policy for delivered orders.
             return f"Order {found} was delivered, so it can be returned within 30 days."
-        # Send f'Order {found} has not been delivered, so it cannot be returned yet.' back to the caller.
+        # Explain that this order has not been delivered yet.
         return f"Order {found} has not been delivered, so it cannot be returned yet."
 ```
 
@@ -107,21 +107,21 @@ class StockLookup:
     # Describe the inventory tool before defining its methods.
     """Find known products and read their stock counts."""
 
-    # Define check_stock so callers can Check how many of one product are in stock.
+    # Check how many of one product are in stock.
     def check_stock(self, item):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Check how many of one product are in stock.
 
         Args:
             item: The product name, like rain jacket.
         """
-        # Store this value for subsequent validation or processing.
+        # Find the stored product mentioned in the request.
         product = self.find_product(item)
-        # Check this condition before allowing the next operation.
+        # Stop when the inventory has no matching product.
         if product is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Return the checked result or the message the caller should display.
             return "That product was not found."
-        # Return the result to the caller without performing terminal I/O.
+        # Return the checked result or the message the caller should display.
         return f"We have {self.count_for(product)} of the {product} in stock."
 
     # Accept inventory during construction so different callers can supply it.
@@ -141,7 +141,7 @@ class StockLookup:
             if product in text.lower():
                 # Return the recognized key for the separate count lookup.
                 return product
-        # Report no match rather than guessing a product.
+        # Signal that no result is available.
         return None
 
     # Provide count lookup as a tool method instead of chatbot data access.
@@ -152,7 +152,7 @@ class StockLookup:
         if product in self.stock:
             # Return the actual stored count without altering inventory.
             return self.stock[product]
-        # Signal an unknown product without raising a KeyError.
+        # Signal that no result is available.
         return None
 ```
 
@@ -163,115 +163,115 @@ class StockLookup:
 # Author: Minh Nguyen
 
 
-# Group this component’s state and behavior behind one interface.
+# Hold proposed address changes until staff decide.
 class ChangeQueue:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """Changes waiting for a person to approve. Nothing changes until they do."""
 
-    # Define __init__ so callers can Start with no requests. Approved changes go through the order tool.
+    # Keep the supplied data and start fresh state.
     def __init__(self, order_tool):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Start with no requests. Approved changes go through the order tool."""
-        # Store this value for subsequent validation or processing.
+        # Keep the order tool used for lookups and approved changes.
         self.order_tool = order_tool
-        # Store this value for subsequent validation or processing.
+        # Start with no requests waiting for staff.
         self.requests = []
 
-    # Define request_address_change so callers can Ask staff to change the shipping address on one order. Staff must approve it.
+    # Ask staff to change the shipping address on one order. Staff must approve it.
     def request_address_change(self, order_id, new_address):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Ask staff to change the shipping address on one order. Staff must approve it.
 
         Args:
             order_id: The order ID, like A100.
             new_address: The full new shipping address.
         """
-        # Store this value for subsequent validation or processing.
+        # Match lowercase IDs to the uppercase order keys.
         order_id = order_id.upper()
-        # Check this condition before allowing the next operation.
+        # Require an exact order key so A1000 cannot change A100.
         if self.order_tool.find_status(order_id) is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Ask for a valid order ID.
             return "No order with that ID was found. Order IDs look like A100."
-        # Store this value for subsequent validation or processing.
+        # Give the new request the next available number.
         number = len(self.requests) + 1
-        # Store this value for subsequent validation or processing.
+        # Save the proposed change with a waiting status.
         request = {
             "number": number,
             "order_id": order_id,
             "new_address": new_address,
             "status": "waiting",
         }
-        # Record or delegate this operation through the component’s interface.
+        # Queue the request without changing the order.
         self.requests.append(request)
-        # Return the result to the caller without performing terminal I/O.
+        # Confirm the request is queued and still needs staff approval.
         return f"Request {number} was sent to staff. The address has not changed yet."
 
-    # Define waiting so callers can Return the requests that are still waiting for a decision.
+    # List requests that still need a decision.
     def waiting(self):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return the requests that are still waiting for a decision."""
-        # Store this value for subsequent validation or processing.
+        # Collect the requests that still need a staff decision.
         result = []
-        # Process the collection or bounded loop in a controlled order.
+        # Check the stored requests one at a time.
         for request in self.requests:
-            # Check this condition before allowing the next operation.
+            # Include only requests that staff have not decided yet.
             if request["status"] == "waiting":
-                # Record or delegate this operation through the component’s interface.
+                # Add this waiting request to the review list.
                 result.append(request)
-        # Return the result to the caller without performing terminal I/O.
+        # Return the waiting requests for staff review.
         return result
 
-    # Define find so callers can Return the request with this number, or None.
+    # Find a request by the number shown to staff.
     def find(self, number):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return the request with this number, or None."""
-        # Process the collection or bounded loop in a controlled order.
+        # Check the stored requests one at a time.
         for request in self.requests:
-            # Check this condition before allowing the next operation.
+            # Match the number staff entered.
             if request["number"] == number:
-                # Return the result to the caller without performing terminal I/O.
+                # Return the matching request.
                 return request
-        # Return the result to the caller without performing terminal I/O.
+        # Signal that no result is available.
         return None
 
-    # Define approve so callers can Approve one waiting request and make the change.
+    # Apply this request once after staff approval.
     def approve(self, number):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Approve one waiting request and make the change."""
-        # Store this value for subsequent validation or processing.
+        # Find the request staff want to approve or reject.
         request = self.find(number)
-        # Check this condition before allowing the next operation.
+        # Refuse a request number that is not in the queue.
         if request is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Explain that the request number was not found.
             return f"There is no request {number}."
-        # Check this condition before allowing the next operation.
+        # Prevent a second decision on an approved or rejected request.
         if request["status"] != "waiting":
-            # Return the result to the caller without performing terminal I/O.
+            # Explain that staff have already decided this request.
             return f"Request {number} is already {request['status']}."
-        # Store this value for subsequent validation or processing.
+        # Mark this request approved so it cannot be applied twice.
         request["status"] = "approved"
-        # Record or delegate this operation through the component’s interface.
+        # Apply the approved address through the order tool.
         self.order_tool.change_address(request["order_id"], request["new_address"])
-        # Return the result to the caller without performing terminal I/O.
+        # Confirm the approval.
         return f"Request {number} approved."
 
-    # Define reject so callers can Reject one waiting request. Nothing changes.
+    # Reject this request without applying it.
     def reject(self, number):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Reject one waiting request. Nothing changes."""
-        # Store this value for subsequent validation or processing.
+        # Find the request staff want to approve or reject.
         request = self.find(number)
-        # Check this condition before allowing the next operation.
+        # Refuse a request number that is not in the queue.
         if request is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Explain that the request number was not found.
             return f"There is no request {number}."
-        # Check this condition before allowing the next operation.
+        # Prevent a second decision on an approved or rejected request.
         if request["status"] != "waiting":
-            # Return the result to the caller without performing terminal I/O.
+            # Explain that staff have already decided this request.
             return f"Request {number} is already {request['status']}."
-        # Store this value for subsequent validation or processing.
+        # Close the request without making the proposed change.
         request["status"] = "rejected"
-        # Return the result to the caller without performing terminal I/O.
+        # Confirm the rejection.
         return f"Request {number} rejected."
 ```
 
@@ -282,27 +282,27 @@ class ChangeQueue:
 # Author: Minh Nguyen
 
 
-# Group this component’s state and behavior behind one interface.
+# Check every tool request before it runs.
 class Toolbox:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """Every tool request from the model comes through here and is checked."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self, order_tool, stock_tool, change_queue):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Hold the tools the model is allowed to ask for."""
-        # Save order_tool in self.order_tool for the following steps.
+        # Keep the order tool used for lookups and approved changes.
         self.order_tool = order_tool
-        # Save stock_tool in self.stock_tool for the following steps.
+        # Keep the inventory tool used for stock questions.
         self.stock_tool = stock_tool
-        # Save change_queue in self.change_queue for the following steps.
+        # Keep address requests in the approval queue.
         self.change_queue = change_queue
 
     # Pass allowed methods to the model without calling them.
     def tool_list(self):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return the tools the model may ask for. They are not called here."""
-        # Send [self.order_tool.look_up_order, self.order_tool.check_return, self.stock_tool.check_stock, self.change_queue.request_address_change] back to the caller.
+        # Advertise the permitted methods without calling them.
         return [
             self.order_tool.look_up_order,
             self.order_tool.check_return,
@@ -312,87 +312,87 @@ class Toolbox:
 
     # Check the tool name and customer arguments before running it.
     def run(self, name, arguments, history):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Check one tool request. Run the tool only if every check passes."""
-        # Check name == 'look_up_order' before choosing the next action.
+        # Route order-status requests to the order lookup.
         if name == "look_up_order":
-            # Save self.clean(arguments, 'order_id') in order_id for the following steps.
+            # Clean the order ID before checking it.
             order_id = self.clean(arguments, "order_id")
-            # Check order_id == '' before choosing the next action.
+            # Ask for the order ID when it is missing.
             if order_id == "":
-                # Send 'The order ID is missing. Ask the customer for it.' back to the caller.
+                # Ask the customer for the required details.
                 return "The order ID is missing. Ask the customer for it."
-            # Check not self.customer_said(history, order_id) before choosing the next action.
+            # Refuse an order ID the customer never supplied.
             if not self.customer_said(history, order_id):
-                # Send 'The customer has not given that order ID. Ask them for it.' back to the caller.
+                # Ask for the missing customer detail instead of using a guessed value.
                 return "The customer has not given that order ID. Ask them for it."
-            # Send self.order_tool.look_up_order(order_id) back to the caller.
+            # Return the checked result or the message the caller should display.
             return self.order_tool.look_up_order(order_id)
-        # Check name == 'check_return' before choosing the next action.
+        # Apply the same order-ID checks to return questions.
         if name == "check_return":
-            # Save self.clean(arguments, 'order_id') in order_id for the following steps.
+            # Clean the order ID before checking it.
             order_id = self.clean(arguments, "order_id")
-            # Check order_id == '' before choosing the next action.
+            # Ask for the order ID when it is missing.
             if order_id == "":
-                # Send 'The order ID is missing. Ask the customer for it.' back to the caller.
+                # Ask the customer for the required details.
                 return "The order ID is missing. Ask the customer for it."
-            # Check not self.customer_said(history, order_id) before choosing the next action.
+            # Refuse an order ID the customer never supplied.
             if not self.customer_said(history, order_id):
-                # Send 'The customer has not given that order ID. Ask them for it.' back to the caller.
+                # Ask for the missing customer detail instead of using a guessed value.
                 return "The customer has not given that order ID. Ask them for it."
-            # Send self.order_tool.check_return(order_id) back to the caller.
+            # Return the checked result or the message the caller should display.
             return self.order_tool.check_return(order_id)
-        # Check name == 'check_stock' before choosing the next action.
+        # Route stock requests to the inventory tool.
         if name == "check_stock":
-            # Save self.clean(arguments, 'item') in item for the following steps.
+            # Clean the product name before looking it up.
             item = self.clean(arguments, "item")
-            # Check item == '' before choosing the next action.
+            # Ask which product the customer wants checked.
             if item == "":
-                # Send 'The product is missing. Ask the customer which product.' back to the caller.
+                # Ask the customer for the required details.
                 return "The product is missing. Ask the customer which product."
-            # Send self.stock_tool.check_stock(item) back to the caller.
+            # Return the checked result or the message the caller should display.
             return self.stock_tool.check_stock(item)
-        # Check name == 'request_address_change' before choosing the next action.
+        # Check both customer details before queuing an address change.
         if name == "request_address_change":
-            # Save self.clean(arguments, 'order_id') in order_id for the following steps.
+            # Clean the order ID before checking it.
             order_id = self.clean(arguments, "order_id")
-            # Save self.clean(arguments, 'new_address') in new_address for the following steps.
+            # Clean the address before checking it.
             new_address = self.clean(arguments, "new_address")
-            # Check order_id == '' or new_address == '' before choosing the next action.
+            # Require both the order ID and address before proceeding.
             if order_id == "" or new_address == "":
-                # Send 'The order ID and the new address are both needed.' back to the caller.
+                # Ask the customer for the required details.
                 return "The order ID and the new address are both needed."
-            # Check not self.customer_said(history, order_id) before choosing the next action.
+            # Refuse an order ID the customer never supplied.
             if not self.customer_said(history, order_id):
-                # Send 'The customer has not given that order ID. Ask them for it.' back to the caller.
+                # Ask for the missing customer detail instead of using a guessed value.
                 return "The customer has not given that order ID. Ask them for it."
-            # Check not self.customer_said(history, new_address) before choosing the next action.
+            # Refuse an address the customer never supplied.
             if not self.customer_said(history, new_address):
-                # Send 'The customer has not given that address. Ask them for it.' back to the caller.
+                # Ask for the missing customer detail instead of using a guessed value.
                 return "The customer has not given that address. Ask them for it."
-            # Send self.change_queue.request_address_change(order_id, new_address) back to the caller.
+            # Return the checked result or the message the caller should display.
             return self.change_queue.request_address_change(order_id, new_address)
-        # Send f'There is no tool named {name}.' back to the caller.
+        # Refuse a tool that this toolbox does not expose.
         return f"There is no tool named {name}."
 
     # Return one argument as text without extra spaces, or "" if it is missing.
     def clean(self, arguments, key):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return one argument as text without extra spaces, or "" if it is missing."""
-        # Send str(arguments.get(key, '')).strip() back to the caller.
+        # Return the checked result or the message the caller should display.
         return str(arguments.get(key, "")).strip()
 
     # Return True if text appears in a message the customer typed.
     def customer_said(self, history, text):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return True if text appears in a message the customer typed."""
-        # Check each message in history.
+        # Read the conversation in order.
         for message in history:
-            # Check message['role'] == 'user' and text.lower() in message['content'].lower() before choosing the next action.
+            # Match only customer messages, ignoring capitalization.
             if message["role"] == "user" and text.lower() in message["content"].lower():
-                # Send True back to the caller.
+                # Report a match.
                 return True
-        # Send False back to the caller.
+        # Report that no match was found.
         return False
 ```
 
@@ -403,36 +403,36 @@ class Toolbox:
 # Author: Minh Nguyen
 
 
-# Group this component’s state and behavior behind one interface.
+# Provide simple keyword decisions when Ollama is unavailable.
 class KeywordModel:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """A stand-in model that decides with keyword rules. It needs no AI."""
 
-    # Define decide so callers can Return a reply or a tool request, based on the last message.
+    # Return either reply text or a tool request.
     def decide(self, instructions, history, tools):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return a reply or a tool request, based on the last message."""
-        # Store this value for subsequent validation or processing.
+        # Read the latest message or tool result.
         last = history[-1]
-        # Check this condition before allowing the next operation.
+        # After a tool call, use its result as the reply.
         if last["role"] == "tool":
-            # Return the result to the caller without performing terminal I/O.
+            # Return the checked result or the message the caller should display.
             return {"text": last["content"]}
-        # Store this value for subsequent validation or processing.
+        # Ignore capitalization when matching keywords.
         text = last["content"].lower()
-        # Check this condition before allowing the next operation.
+        # Use the order lookup for messages containing order.
         if "order" in text:
-            # Return the result to the caller without performing terminal I/O.
+            # Return the checked result or the message the caller should display.
             return {"tool": "look_up_order", "arguments": {"order_id": last["content"]}}
-        # Check this condition before allowing the next operation.
+        # Use the stock tool for messages containing stock.
         if "stock" in text:
-            # Return the result to the caller without performing terminal I/O.
+            # Return the checked result or the message the caller should display.
             return {"tool": "check_stock", "arguments": {"item": last["content"]}}
-        # Check this condition before allowing the next operation.
+        # Recognize the fallback model's greeting.
         if "hello" in text:
-            # Return the result to the caller without performing terminal I/O.
+            # Return the checked result or the message the caller should display.
             return {"text": "Hello! How can I help you today?"}
-        # Return the result to the caller without performing terminal I/O.
+        # Return the checked result or the message the caller should display.
         return {
             "text": "I'm not sure how to help with that. I can check an order or stock."
         }
@@ -445,29 +445,29 @@ class KeywordModel:
 # Author: Minh Nguyen
 
 
-# Group this component’s state and behavior behind one interface.
+# Play back fixed decisions for repeatable tests.
 class FakeModel:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """A model for tests. It plays back a list of decisions, one per call."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self, decisions):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Store the decisions to play back, in order."""
-        # Save decisions in self.decisions for the following steps.
+        # Keep the scripted decisions in their playback order.
         self.decisions = decisions
-        # Save 0 in self.calls for the following steps.
+        # Start playback at the first decision.
         self.calls = 0
 
     # Return the next decision in the list.
     def decide(self, instructions, history, tools):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return the next decision in the list."""
-        # Save self.decisions[self.calls] in decision for the following steps.
+        # Read the decision for this test call.
         decision = self.decisions[self.calls]
-        # Count this completed step with self.calls += 1.
+        # Move to the next scripted decision.
         self.calls += 1
-        # Send decision back to the caller.
+        # Keep the primary model's answer when it is available.
         return decision
 ```
 
@@ -478,31 +478,31 @@ class FakeModel:
 # Author: Minh Nguyen
 
 
-# Group this component’s state and behavior behind one interface.
+# Use a second model only when the first is unavailable.
 class FallbackModel:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """Ask the first model. If it has no answer, ask the second one."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self, first, second):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Store the two models, in the order they are asked."""
-        # Save first in self.first for the following steps.
+        # Try this model first.
         self.first = first
-        # Save second in self.second for the following steps.
+        # Use this model only when the first returns None.
         self.second = second
 
     # Return the first model's decision, or the second's if the first has none.
     def decide(self, instructions, history, tools):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return the first model's decision, or the second's if the first has none."""
-        # Save self.first.decide(instructions, history, tools) in decision for the following steps.
+        # Try the primary model before considering the fallback.
         decision = self.first.decide(instructions, history, tools)
-        # Check decision is None before choosing the next action.
+        # Handle an unavailable model without crashing the conversation.
         if decision is None:
-            # Send self.second.decide(instructions, history, tools) back to the caller.
+            # Ask the fallback model because the primary model is unavailable.
             return self.second.decide(instructions, history, tools)
-        # Send decision back to the caller.
+        # Keep the primary model's answer when it is available.
         return decision
 ```
 
@@ -516,90 +516,90 @@ HANDOFF_WORDS = ["payment", "card"]
 MAX_TOOL_ROUNDS = 3
 
 
-# Group this component’s state and behavior behind one interface.
+# Keep conversation history and run the model/tool loop.
 class SupportChatbot:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """A support chatbot. The model decides. The toolbox checks every tool request."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self, name, instructions, tools, model):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Set up one chatbot with its own name, instructions, tools, model, and history."""
-        # Save name in self.name for the following steps.
+        # Keep the name used when displaying replies.
         self.name = name
-        # Save instructions in self.instructions for the following steps.
+        # Keep the instructions sent to the model on every call.
         self.instructions = instructions
-        # Save tools in self.tools for the following steps.
+        # Use the supplied toolbox to check every tool request.
         self.tools = tools
-        # Save model in self.model for the following steps.
+        # Keep the supplied model so tests can substitute a fake.
         self.model = model
-        # Save [] in self.history for the following steps.
+        # Start a separate conversation history for this bot.
         self.history = []
 
     # Record the user's message, choose a reply, record it, and return it.
     def respond(self, user_message):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Record the user's message, choose a reply, record it, and return it."""
-        # Run self.history.append({'role': 'user', 'content': user_message}) to record or apply this step.
+        # Record the customer's words before asking the model.
         self.history.append({"role": "user", "content": user_message})
-        # Save self.choose_reply(user_message) in reply for the following steps.
+        # Choose a response after recording the user's message.
         reply = self.choose_reply(user_message)
-        # Run self.history.append({'role': 'assistant', 'content': reply}) to record or apply this step.
+        # Keep the final reply so the next call can see it.
         self.history.append({"role": "assistant", "content": reply})
-        # Send reply back to the caller.
+        # Return the reply for display.
         return reply
 
     # Pass payment questions to a person. Send everything else to the model.
     def choose_reply(self, user_message):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Pass payment questions to a person. Send everything else to the model."""
-        # Check self.needs_human(user_message.lower()) before choosing the next action.
+        # Send sensitive questions to a person before calling the model.
         if self.needs_human(user_message.lower()):
-            # Send "I can't help with that here. I'm passing you to a human agent." back to the caller.
+            # Send the customer to a person.
             return "I can't help with that here. I'm passing you to a human agent."
-        # Send self.model_reply() back to the caller.
+        # Ask the model about messages that do not need a handoff.
         return self.model_reply()
 
     # Catch sensitive requests before asking the model.
     def needs_human(self, text):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return True if the message is about something a person must handle."""
-        # Check each word in HANDOFF_WORDS.
+        # Check each payment keyword.
         for word in HANDOFF_WORDS:
-            # Check word in text before choosing the next action.
+            # One sensitive keyword is enough for a handoff.
             if word in text:
-                # Send True back to the caller.
+                # Report a match.
                 return True
-        # Send False back to the caller.
+        # Report that no match was found.
         return False
 
     # Ask the model. Run each tool it asks for, then ask again, up to a limit.
     def model_reply(self):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Ask the model. Run each tool it asks for, then ask again, up to a limit."""
-        # Save 0 in rounds for the following steps.
+        # Start counting tool rounds for this user message.
         rounds = 0
-        # Limit tool rounds with rounds < MAX_TOOL_ROUNDS to prevent an endless loop.
+        # Stop after three rounds if the model keeps asking for tools.
         while rounds < MAX_TOOL_ROUNDS:
-            # Save self.tools.tool_list() in tool_list for the following steps.
+            # Give the model the methods it is allowed to request.
             tool_list = self.tools.tool_list()
-            # Save self.model.decide(self.instructions, self.history, tool_list) in decision for the following steps.
+            # Ask for either a reply or a tool request using the full history.
             decision = self.model.decide(self.instructions, self.history, tool_list)
-            # Check decision is None before choosing the next action.
+            # Handle an unavailable model without crashing the conversation.
             if decision is None:
-                # Send "Sorry, I can't answer that right now. Please try again in a moment." back to the caller.
+                # Give a safe retry message when the model is unavailable.
                 return "Sorry, I can't answer that right now. Please try again in a moment."
-            # Check 'text' in decision before choosing the next action.
+            # Finish the turn when the model returns text.
             if "text" in decision:
-                # Send decision['text'] back to the caller.
+                # Use the model's final text as the reply.
                 return decision["text"]
-            # Save decision['tool'] in name for the following steps.
+            # Read which tool the model wants to use.
             name = decision["tool"]
-            # Save decision['arguments'] in arguments for the following steps.
+            # Read the values the model supplied for that tool.
             arguments = decision["arguments"]
-            # Save self.tools.run(name, arguments, self.history) in result for the following steps.
+            # Check the request before running the tool.
             result = self.tools.run(name, arguments, self.history)
-            # Run self.history.append({'role': 'tool', 'tool_name': name, 'arguments': arguments, 'content': result}) to record or apply this step.
+            # Record the tool name, arguments, and result for the next model call.
             self.history.append(
                 {
                     "role": "tool",
@@ -608,24 +608,24 @@ class SupportChatbot:
                     "content": result,
                 }
             )
-            # Count this completed step with rounds += 1.
+            # Count this tool round toward the limit.
             rounds += 1
-        # Send "Sorry, I couldn't finish that. I'm passing you to a human agent." back to the caller.
+        # Send the customer to a person.
         return "Sorry, I couldn't finish that. I'm passing you to a human agent."
 
     # Return how many messages the user has sent so far.
     def count_user_messages(self):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return how many messages the user has sent so far."""
-        # Save 0 in count for the following steps.
+        # Start counting user turns, excluding tools and assistant replies.
         count = 0
         # Check each message in self.history.
         for message in self.history:
-            # Check message['role'] == 'user' before choosing the next action.
+            # Count only messages typed by the customer.
             if message["role"] == "user":
-                # Count this completed step with count += 1.
+                # Count this user message.
                 count += 1
-        # Send count back to the caller.
+        # Return the number of user turns.
         return count
 ```
 
@@ -638,82 +638,82 @@ class SupportChatbot:
 from ollama import ResponseError, chat
 
 
-# Group this component’s state and behavior behind one interface.
+# Translate between the chatbot and Ollama.
 class OllamaModel:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """A real AI model that runs on this computer through Ollama."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self, model_name):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Remember which model to ask."""
-        # Save model_name in self.model_name for the following steps.
+        # Remember which downloaded Ollama model to call.
         self.model_name = model_name
 
     # Send the instructions and the conversation to the model. Return its reply.
     def reply(self, instructions, history):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Send the instructions and the conversation to the model. Return its reply."""
-        # Save [{'role': 'system', 'content': instructions}] in messages for the following steps.
+        # Put the instructions first as a system message.
         messages = [{"role": "system", "content": instructions}]
-        # Save messages + history in messages for the following steps.
+        # Include earlier turns because the model has no memory between calls.
         messages = messages + history
         # Handle the expected model connection and response failures.
         try:
-            # Save chat(model=self.model_name, messages=messages) in response for the following steps.
+            # Ask Ollama for a text reply.
             response = chat(model=self.model_name, messages=messages)
         except ConnectionError:
-            # Send None back to the caller.
+            # Signal that no result is available.
             return None
         except ResponseError:
-            # Send None back to the caller.
+            # Signal that no result is available.
             return None
-        # Send response.message.content back to the caller.
+        # Extract the text from Ollama's response.
         return response.message.content
 
     # Send the conversation and the tools. Return a reply or a tool request.
     def decide(self, instructions, history, tools):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Send the conversation and the tools. Return a reply or a tool request."""
-        # Save [{'role': 'system', 'content': instructions}] in messages for the following steps.
+        # Put the instructions first as a system message.
         messages = [{"role": "system", "content": instructions}]
-        # Check each message in history.
+        # Read the conversation in order.
         for message in history:
-            # Check message['role'] == 'tool' before choosing the next action.
+            # Expand stored tool entries into Ollama's request/result format.
             if message["role"] == "tool":
-                # Save messages + self.tool_messages(message) in messages for the following steps.
+                # Add both the tool request and its result.
                 messages = messages + self.tool_messages(message)
             else:
-                # Run messages.append(message) to record or apply this step.
+                # Copy user and assistant messages into the request.
                 messages.append(message)
         # Handle the expected model connection and response failures.
         try:
-            # Save chat(model=self.model_name, messages=messages, tools=tools) in response for the following steps.
+            # Send the tool descriptions with the conversation.
             response = chat(model=self.model_name, messages=messages, tools=tools)
         except ConnectionError:
-            # Send None back to the caller.
+            # Signal that no result is available.
             return None
         except ResponseError:
-            # Send None back to the caller.
+            # Signal that no result is available.
             return None
-        # Check response.message.tool_calls before choosing the next action.
+        # Check whether the model requested a tool instead of text.
         if response.message.tool_calls:
-            # Save response.message.tool_calls[0] in call for the following steps.
+            # Handle the first requested tool; the loop can ask again.
             call = response.message.tool_calls[0]
-            # Send {'tool': call.function.name, 'arguments': call.function.arguments} back to the caller.
+            # Return the requested name and arguments for toolbox validation.
             return {"tool": call.function.name, "arguments": call.function.arguments}
-        # Send {'text': response.message.content} back to the caller.
+        # Return a text decision when no tool was requested.
         return {"text": response.message.content}
 
     # Turn one tool entry into the two messages Ollama expects.
     def tool_messages(self, message):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Turn one tool entry into the two messages Ollama expects."""
-        # Save message['tool_name'] in name for the following steps.
+        # Read the name recorded with the tool result.
         name = message["tool_name"]
-        # Save {'function': {'name': name, 'arguments': message['arguments']}} in request for the following steps.
+        # Rebuild the model's tool request so Ollama sees what it asked for.
         request = {"function": {"name": name, "arguments": message["arguments"]}}
-        # Send [{'role': 'assistant', 'content': '', 'tool_calls': [request]}, {'role': 'tool', 'tool_name': name, 'content': message['content']}] back to the caller.
+        # Send the original tool request followed by its result.
         return [
             {"role": "assistant", "content": "", "tool_calls": [request]},
             {"role": "tool", "tool_name": name, "content": message["content"]},
@@ -732,21 +732,21 @@ class FAQBook:
     # Describe the FAQ tool before defining its methods.
     """Find known FAQ topics and retrieve their stored answers."""
 
-    # Define check_faq so callers can Read a verified print-desk FAQ answer.
+    # Read a verified print-desk FAQ answer.
     def check_faq(self, topic):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Read a verified print-desk FAQ answer.
 
         Args:
             topic: The topic supplied by the customer: hours, pricing, or pickup.
         """
-        # Store this value for subsequent validation or processing.
+        # Find a stored FAQ topic in the request.
         found = self.find_topic(topic)
-        # Check this condition before allowing the next operation.
+        # Handle an unknown ID without inventing an order.
         if found is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Return the checked result or the message the caller should display.
             return "Which topic? I can check hours, pricing, or pickup."
-        # Return the result to the caller without performing terminal I/O.
+        # Return the checked result or the message the caller should display.
         return self.answer_for(found) or "Please ask the print desk staff."
 
     # Receive the answer dictionary so the same tool can serve different shops.
@@ -766,7 +766,7 @@ class FAQBook:
             if topic in text.lower():
                 # Return the recognized key so the caller can retrieve its answer.
                 return topic
-        # Indicate no known topic rather than guessing an answer.
+        # Signal that no result is available.
         return None
 
     # Keep retrieving an answer separate from recognizing its topic.
@@ -777,7 +777,7 @@ class FAQBook:
         if topic in self.answers:
             # Return only the stored information without making up shop policies.
             return self.answers[topic]
-        # Let the assistant explain a failed lookup safely.
+        # Signal that no result is available.
         return None
 ```
 
@@ -792,14 +792,14 @@ except ImportError:
     from chatbot import SupportChatbot
 
 
-# Group this component’s state and behavior behind one interface.
+# Use the shared conversation loop with print-desk handoff rules.
 class PrintShopAssistant(SupportChatbot):
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """Reuse the bounded tool loop with print-shop handoff rules."""
 
     # Catch sensitive requests before asking the model.
     def needs_human(self, text):
-        # Send any((word in text for word in ['refund', 'cancel', 'payment', 'card', 'complaint'])) back to the caller.
+        # Return the checked result or the message the caller should display.
         return any(
             word in text
             for word in ["refund", "cancel", "payment", "card", "complaint"]
@@ -812,30 +812,30 @@ class PrintShopAssistant(SupportChatbot):
 """Staff-reviewed print requests."""
 
 
-# Group this component’s state and behavior behind one interface.
+# Hold proposed print jobs until staff approve them.
 class PrintQueue:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """Keep proposed jobs separate from approved jobs."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self):
-        # Save [] in self.requests for the following steps.
+        # Start with no requests waiting for staff.
         self.requests = []
-        # Save [] in self.jobs for the following steps.
+        # Keep accepted jobs separate from proposed jobs.
         self.jobs = []
 
     # Ask staff to accept a print job; nothing is printed yet.
     def request_print_job(self, document, customer):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Ask staff to accept a print job; nothing is printed yet.
 
         Args:
             document: The PDF filename supplied by the customer.
             customer: The customer's full name.
         """
-        # Save len(self.requests) + 1 in number for the following steps.
+        # Give the new request the next available number.
         number = len(self.requests) + 1
-        # Run self.requests.append({'number': number, 'document': document, 'customer': customer, 'status': 'waiting'}) to record or apply this step.
+        # Save the proposed print job for staff to review.
         self.requests.append(
             {
                 "number": number,
@@ -844,50 +844,50 @@ class PrintQueue:
                 "status": "waiting",
             }
         )
-        # Send f'Request {number} sent to staff. Nothing has been printed yet.' back to the caller.
+        # Confirm the request is queued and still needs staff approval.
         return f"Request {number} sent to staff. Nothing has been printed yet."
 
     # List undecided requests so staff can review them.
     def waiting(self):
-        # Send [r for r in self.requests if r['status'] == 'waiting'] back to the caller.
+        # Return only requests that still need staff review.
         return [r for r in self.requests if r["status"] == "waiting"]
 
     # Apply a waiting request once; refuse missing or completed requests.
     def approve(self, number):
-        # Save next((r for r in self.requests if r['number'] == number), None) in request for the following steps.
+        # Find the numbered request, or use None if it does not exist.
         request = next((r for r in self.requests if r["number"] == number), None)
-        # Check request is None before choosing the next action.
+        # Refuse a request number that is not in the queue.
         if request is None:
-            # Send f'There is no request {number}.' back to the caller.
+            # Explain that the request number was not found.
             return f"There is no request {number}."
-        # Check request['status'] != 'waiting' before choosing the next action.
+        # Prevent a second decision on an approved or rejected request.
         if request["status"] != "waiting":
-            # Send f"Request {number} is already {request['status']}." back to the caller.
+            # Explain that staff have already decided this request.
             return f"Request {number} is already {request['status']}."
-        # Run self.jobs.append({'document': request['document'], 'customer': request['customer']}) to record or apply this step.
+        # Accept this job only after staff approval.
         self.jobs.append(
             {"document": request["document"], "customer": request["customer"]}
         )
-        # Save 'approved' in request['status'] for the following steps.
+        # Mark this request approved so it cannot be applied twice.
         request["status"] = "approved"
-        # Send f'Request {number} approved.' back to the caller.
+        # Confirm the approval.
         return f"Request {number} approved."
 
     # Reject a waiting request without applying its change.
     def reject(self, number):
-        # Save next((r for r in self.requests if r['number'] == number), None) in request for the following steps.
+        # Find the numbered request, or use None if it does not exist.
         request = next((r for r in self.requests if r["number"] == number), None)
-        # Check request is None before choosing the next action.
+        # Refuse a request number that is not in the queue.
         if request is None:
-            # Send f'There is no request {number}.' back to the caller.
+            # Explain that the request number was not found.
             return f"There is no request {number}."
-        # Check request['status'] != 'waiting' before choosing the next action.
+        # Prevent a second decision on an approved or rejected request.
         if request["status"] != "waiting":
-            # Send f"Request {number} is already {request['status']}." back to the caller.
+            # Explain that staff have already decided this request.
             return f"Request {number} is already {request['status']}."
-        # Save 'rejected' in request['status'] for the following steps.
+        # Close the request without making the proposed change.
         request["status"] = "rejected"
-        # Send f'Request {number} rejected.' back to the caller.
+        # Confirm the rejection.
         return f"Request {number} rejected."
 ```
 
@@ -897,63 +897,63 @@ class PrintQueue:
 """One checked entry point for Piper's tools."""
 
 
-# Group this component’s state and behavior behind one interface.
+# Check Piper's tool requests and customer details.
 class PrintToolbox:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """Validate customer details before dispatching a tool."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self, faq_tool, queue):
-        # Save faq_tool in self.faq_tool for the following steps.
+        # Use the supplied FAQ book for stored shop answers.
         self.faq_tool = faq_tool
-        # Save queue in self.queue for the following steps.
+        # Send proposed print jobs to this queue for staff review.
         self.queue = queue
 
     # Pass allowed methods to the model without calling them.
     def tool_list(self):
-        # Send [self.faq_tool.check_faq, self.queue.request_print_job] back to the caller.
+        # Return the checked result or the message the caller should display.
         return [self.faq_tool.check_faq, self.queue.request_print_job]
 
     # Check the tool name and customer arguments before running it.
     def run(self, name, arguments, history):
-        # Check name == 'check_faq' before choosing the next action.
+        # Handle a request for a stored FAQ answer.
         if name == "check_faq":
-            # Save ['topic'] in keys for the following steps.
+            # Require the FAQ topic before looking up an answer.
             keys = ["topic"]
-        # Check name == 'request_print_job' before choosing the next action.
+        # Require a document and customer name for a print request.
         elif name == "request_print_job":
-            # Save ['document', 'customer'] in keys for the following steps.
+            # Require both the filename and customer name before queuing a job.
             keys = ["document", "customer"]
         else:
-            # Send f'There is no tool named {name}.' back to the caller.
+            # Refuse a tool that this toolbox does not expose.
             return f"There is no tool named {name}."
-        # Save {} in values for the following steps.
+        # Collect the arguments that pass validation.
         values = {}
-        # Check each key in keys.
+        # Check each required argument.
         for key in keys:
-            # Save str(arguments.get(key) or '').strip() in value for the following steps.
+            # Treat missing values and whitespace as empty.
             value = str(arguments.get(key) or "").strip()
-            # Check not value before choosing the next action.
+            # Refuse an empty argument before checking who supplied it.
             if not value:
-                # Send f'The {key} is missing. Ask the customer for it.' back to the caller.
+                # Ask the customer for the required details.
                 return f"The {key} is missing. Ask the customer for it."
-            # Check not any((m['role'] == 'user' and value.lower() in m['content'].lower() for m in history)) before choosing the next action.
+            # Require the value to appear in a user message, not a model reply.
             if not any(
                 m["role"] == "user" and value.lower() in m["content"].lower()
                 for m in history
             ):
-                # Send f'The customer has not given that {key}. Ask them for it.' back to the caller.
+                # Ask for the missing customer detail instead of using a guessed value.
                 return f"The customer has not given that {key}. Ask them for it."
-            # Save value in values[key] for the following steps.
+            # Keep this argument after its checks pass.
             values[key] = value
-        # Check name == 'check_faq' before choosing the next action.
+        # Handle a request for a stored FAQ answer.
         if name == "check_faq":
-            # Send self.faq_tool.check_faq(**values) back to the caller.
+            # Return the checked result or the message the caller should display.
             return self.faq_tool.check_faq(**values)
-        # Check not values['document'].lower().endswith('.pdf') before choosing the next action.
+        # Accept only PDF filenames for this print-desk example.
         if not values["document"].lower().endswith(".pdf"):
-            # Send 'Please supply a PDF filename.' back to the caller.
+            # Return the checked result or the message the caller should display.
             return "Please supply a PDF filename."
-        # Send self.queue.request_print_job(**values) back to the caller.
+        # Return the checked result or the message the caller should display.
         return self.queue.request_print_job(**values)
 ```

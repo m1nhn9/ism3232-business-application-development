@@ -5,90 +5,90 @@ HANDOFF_WORDS = ["payment", "card"]
 MAX_TOOL_ROUNDS = 3
 
 
-# Group this component’s state and behavior behind one interface.
+# Keep conversation history and run the model/tool loop.
 class SupportChatbot:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """A support chatbot. The model decides. The toolbox checks every tool request."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self, name, instructions, tools, model):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Set up one chatbot with its own name, instructions, tools, model, and history."""
-        # Save name in self.name for the following steps.
+        # Keep the name used when displaying replies.
         self.name = name
-        # Save instructions in self.instructions for the following steps.
+        # Keep the instructions sent to the model on every call.
         self.instructions = instructions
-        # Save tools in self.tools for the following steps.
+        # Use the supplied toolbox to check every tool request.
         self.tools = tools
-        # Save model in self.model for the following steps.
+        # Keep the supplied model so tests can substitute a fake.
         self.model = model
-        # Save [] in self.history for the following steps.
+        # Start a separate conversation history for this bot.
         self.history = []
 
     # Record the user's message, choose a reply, record it, and return it.
     def respond(self, user_message):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Record the user's message, choose a reply, record it, and return it."""
-        # Run self.history.append({'role': 'user', 'content': user_message}) to record or apply this step.
+        # Record the customer's words before asking the model.
         self.history.append({"role": "user", "content": user_message})
-        # Save self.choose_reply(user_message) in reply for the following steps.
+        # Choose a response after recording the user's message.
         reply = self.choose_reply(user_message)
-        # Run self.history.append({'role': 'assistant', 'content': reply}) to record or apply this step.
+        # Keep the final reply so the next call can see it.
         self.history.append({"role": "assistant", "content": reply})
-        # Send reply back to the caller.
+        # Return the reply for display.
         return reply
 
     # Pass payment questions to a person. Send everything else to the model.
     def choose_reply(self, user_message):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Pass payment questions to a person. Send everything else to the model."""
-        # Check self.needs_human(user_message.lower()) before choosing the next action.
+        # Send sensitive questions to a person before calling the model.
         if self.needs_human(user_message.lower()):
-            # Send "I can't help with that here. I'm passing you to a human agent." back to the caller.
+            # Send the customer to a person.
             return "I can't help with that here. I'm passing you to a human agent."
-        # Send self.model_reply() back to the caller.
+        # Ask the model about messages that do not need a handoff.
         return self.model_reply()
 
     # Catch sensitive requests before asking the model.
     def needs_human(self, text):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return True if the message is about something a person must handle."""
-        # Check each word in HANDOFF_WORDS.
+        # Check each payment keyword.
         for word in HANDOFF_WORDS:
-            # Check word in text before choosing the next action.
+            # One sensitive keyword is enough for a handoff.
             if word in text:
-                # Send True back to the caller.
+                # Report a match.
                 return True
-        # Send False back to the caller.
+        # Report that no match was found.
         return False
 
     # Ask the model. Run each tool it asks for, then ask again, up to a limit.
     def model_reply(self):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Ask the model. Run each tool it asks for, then ask again, up to a limit."""
-        # Save 0 in rounds for the following steps.
+        # Start counting tool rounds for this user message.
         rounds = 0
-        # Limit tool rounds with rounds < MAX_TOOL_ROUNDS to prevent an endless loop.
+        # Stop after three rounds if the model keeps asking for tools.
         while rounds < MAX_TOOL_ROUNDS:
-            # Save self.tools.tool_list() in tool_list for the following steps.
+            # Give the model the methods it is allowed to request.
             tool_list = self.tools.tool_list()
-            # Save self.model.decide(self.instructions, self.history, tool_list) in decision for the following steps.
+            # Ask for either a reply or a tool request using the full history.
             decision = self.model.decide(self.instructions, self.history, tool_list)
-            # Check decision is None before choosing the next action.
+            # Handle an unavailable model without crashing the conversation.
             if decision is None:
-                # Send "Sorry, I can't answer that right now. Please try again in a moment." back to the caller.
+                # Give a safe retry message when the model is unavailable.
                 return "Sorry, I can't answer that right now. Please try again in a moment."
-            # Check 'text' in decision before choosing the next action.
+            # Finish the turn when the model returns text.
             if "text" in decision:
-                # Send decision['text'] back to the caller.
+                # Use the model's final text as the reply.
                 return decision["text"]
-            # Save decision['tool'] in name for the following steps.
+            # Read which tool the model wants to use.
             name = decision["tool"]
-            # Save decision['arguments'] in arguments for the following steps.
+            # Read the values the model supplied for that tool.
             arguments = decision["arguments"]
-            # Save self.tools.run(name, arguments, self.history) in result for the following steps.
+            # Check the request before running the tool.
             result = self.tools.run(name, arguments, self.history)
-            # Run self.history.append({'role': 'tool', 'tool_name': name, 'arguments': arguments, 'content': result}) to record or apply this step.
+            # Record the tool name, arguments, and result for the next model call.
             self.history.append(
                 {
                     "role": "tool",
@@ -97,22 +97,22 @@ class SupportChatbot:
                     "content": result,
                 }
             )
-            # Count this completed step with rounds += 1.
+            # Count this tool round toward the limit.
             rounds += 1
-        # Send "Sorry, I couldn't finish that. I'm passing you to a human agent." back to the caller.
+        # Send the customer to a person.
         return "Sorry, I couldn't finish that. I'm passing you to a human agent."
 
     # Return how many messages the user has sent so far.
     def count_user_messages(self):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return how many messages the user has sent so far."""
-        # Save 0 in count for the following steps.
+        # Start counting user turns, excluding tools and assistant replies.
         count = 0
         # Check each message in self.history.
         for message in self.history:
-            # Check message['role'] == 'user' before choosing the next action.
+            # Count only messages typed by the customer.
             if message["role"] == "user":
-                # Count this completed step with count += 1.
+                # Count this user message.
                 count += 1
-        # Send count back to the caller.
+        # Return the number of user turns.
         return count

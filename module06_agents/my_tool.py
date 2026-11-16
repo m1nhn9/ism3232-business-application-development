@@ -7,21 +7,21 @@ class FAQBook:
     # Describe the FAQ tool before defining its methods.
     """Find known FAQ topics and retrieve their stored answers."""
 
-    # Define check_faq so callers can Read a verified print-desk FAQ answer.
+    # Read a verified print-desk FAQ answer.
     def check_faq(self, topic):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Read a verified print-desk FAQ answer.
 
         Args:
             topic: The topic supplied by the customer: hours, pricing, or pickup.
         """
-        # Store this value for subsequent validation or processing.
+        # Find a stored FAQ topic in the request.
         found = self.find_topic(topic)
-        # Check this condition before allowing the next operation.
+        # Handle an unknown ID without inventing an order.
         if found is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Return the checked result or the message the caller should display.
             return "Which topic? I can check hours, pricing, or pickup."
-        # Return the result to the caller without performing terminal I/O.
+        # Return the checked result or the message the caller should display.
         return self.answer_for(found) or "Please ask the print desk staff."
 
     # Receive the answer dictionary so the same tool can serve different shops.
@@ -41,7 +41,7 @@ class FAQBook:
             if topic in text.lower():
                 # Return the recognized key so the caller can retrieve its answer.
                 return topic
-        # Indicate no known topic rather than guessing an answer.
+        # Signal that no result is available.
         return None
 
     # Keep retrieving an answer separate from recognizing its topic.
@@ -52,5 +52,5 @@ class FAQBook:
         if topic in self.answers:
             # Return only the stored information without making up shop policies.
             return self.answers[topic]
-        # Let the assistant explain a failed lookup safely.
+        # Signal that no result is available.
         return None

@@ -7,21 +7,21 @@ class StockLookup:
     # Describe the inventory tool before defining its methods.
     """Find known products and read their stock counts."""
 
-    # Define check_stock so callers can Check how many of one product are in stock.
+    # Check how many of one product are in stock.
     def check_stock(self, item):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Check how many of one product are in stock.
 
         Args:
             item: The product name, like rain jacket.
         """
-        # Store this value for subsequent validation or processing.
+        # Find the stored product mentioned in the request.
         product = self.find_product(item)
-        # Check this condition before allowing the next operation.
+        # Stop when the inventory has no matching product.
         if product is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Return the checked result or the message the caller should display.
             return "That product was not found."
-        # Return the result to the caller without performing terminal I/O.
+        # Return the checked result or the message the caller should display.
         return f"We have {self.count_for(product)} of the {product} in stock."
 
     # Accept inventory during construction so different callers can supply it.
@@ -41,7 +41,7 @@ class StockLookup:
             if product in text.lower():
                 # Return the recognized key for the separate count lookup.
                 return product
-        # Report no match rather than guessing a product.
+        # Signal that no result is available.
         return None
 
     # Provide count lookup as a tool method instead of chatbot data access.
@@ -52,5 +52,5 @@ class StockLookup:
         if product in self.stock:
             # Return the actual stored count without altering inventory.
             return self.stock[product]
-        # Signal an unknown product without raising a KeyError.
+        # Signal that no result is available.
         return None

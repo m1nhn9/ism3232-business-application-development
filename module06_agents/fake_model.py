@@ -2,27 +2,27 @@
 # Author: Minh Nguyen
 
 
-# Group this component’s state and behavior behind one interface.
+# Play back fixed decisions for repeatable tests.
 class FakeModel:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """A model for tests. It plays back a list of decisions, one per call."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self, decisions):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Store the decisions to play back, in order."""
-        # Save decisions in self.decisions for the following steps.
+        # Keep the scripted decisions in their playback order.
         self.decisions = decisions
-        # Save 0 in self.calls for the following steps.
+        # Start playback at the first decision.
         self.calls = 0
 
     # Return the next decision in the list.
     def decide(self, instructions, history, tools):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return the next decision in the list."""
-        # Save self.decisions[self.calls] in decision for the following steps.
+        # Read the decision for this test call.
         decision = self.decisions[self.calls]
-        # Count this completed step with self.calls += 1.
+        # Move to the next scripted decision.
         self.calls += 1
-        # Send decision back to the caller.
+        # Keep the primary model's answer when it is available.
         return decision

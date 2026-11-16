@@ -2,113 +2,113 @@
 # Author: Minh Nguyen
 
 
-# Group this component’s state and behavior behind one interface.
+# Hold proposed address changes until staff decide.
 class ChangeQueue:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """Changes waiting for a person to approve. Nothing changes until they do."""
 
-    # Define __init__ so callers can Start with no requests. Approved changes go through the order tool.
+    # Keep the supplied data and start fresh state.
     def __init__(self, order_tool):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Start with no requests. Approved changes go through the order tool."""
-        # Store this value for subsequent validation or processing.
+        # Keep the order tool used for lookups and approved changes.
         self.order_tool = order_tool
-        # Store this value for subsequent validation or processing.
+        # Start with no requests waiting for staff.
         self.requests = []
 
-    # Define request_address_change so callers can Ask staff to change the shipping address on one order. Staff must approve it.
+    # Ask staff to change the shipping address on one order. Staff must approve it.
     def request_address_change(self, order_id, new_address):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Ask staff to change the shipping address on one order. Staff must approve it.
 
         Args:
             order_id: The order ID, like A100.
             new_address: The full new shipping address.
         """
-        # Store this value for subsequent validation or processing.
+        # Match lowercase IDs to the uppercase order keys.
         order_id = order_id.upper()
-        # Check this condition before allowing the next operation.
+        # Require an exact order key so A1000 cannot change A100.
         if self.order_tool.find_status(order_id) is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Ask for a valid order ID.
             return "No order with that ID was found. Order IDs look like A100."
-        # Store this value for subsequent validation or processing.
+        # Give the new request the next available number.
         number = len(self.requests) + 1
-        # Store this value for subsequent validation or processing.
+        # Save the proposed change with a waiting status.
         request = {
             "number": number,
             "order_id": order_id,
             "new_address": new_address,
             "status": "waiting",
         }
-        # Record or delegate this operation through the component’s interface.
+        # Queue the request without changing the order.
         self.requests.append(request)
-        # Return the result to the caller without performing terminal I/O.
+        # Confirm the request is queued and still needs staff approval.
         return f"Request {number} was sent to staff. The address has not changed yet."
 
-    # Define waiting so callers can Return the requests that are still waiting for a decision.
+    # List requests that still need a decision.
     def waiting(self):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return the requests that are still waiting for a decision."""
-        # Store this value for subsequent validation or processing.
+        # Collect the requests that still need a staff decision.
         result = []
-        # Process the collection or bounded loop in a controlled order.
+        # Check the stored requests one at a time.
         for request in self.requests:
-            # Check this condition before allowing the next operation.
+            # Include only requests that staff have not decided yet.
             if request["status"] == "waiting":
-                # Record or delegate this operation through the component’s interface.
+                # Add this waiting request to the review list.
                 result.append(request)
-        # Return the result to the caller without performing terminal I/O.
+        # Return the waiting requests for staff review.
         return result
 
-    # Define find so callers can Return the request with this number, or None.
+    # Find a request by the number shown to staff.
     def find(self, number):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return the request with this number, or None."""
-        # Process the collection or bounded loop in a controlled order.
+        # Check the stored requests one at a time.
         for request in self.requests:
-            # Check this condition before allowing the next operation.
+            # Match the number staff entered.
             if request["number"] == number:
-                # Return the result to the caller without performing terminal I/O.
+                # Return the matching request.
                 return request
-        # Return the result to the caller without performing terminal I/O.
+        # Signal that no result is available.
         return None
 
-    # Define approve so callers can Approve one waiting request and make the change.
+    # Apply this request once after staff approval.
     def approve(self, number):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Approve one waiting request and make the change."""
-        # Store this value for subsequent validation or processing.
+        # Find the request staff want to approve or reject.
         request = self.find(number)
-        # Check this condition before allowing the next operation.
+        # Refuse a request number that is not in the queue.
         if request is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Explain that the request number was not found.
             return f"There is no request {number}."
-        # Check this condition before allowing the next operation.
+        # Prevent a second decision on an approved or rejected request.
         if request["status"] != "waiting":
-            # Return the result to the caller without performing terminal I/O.
+            # Explain that staff have already decided this request.
             return f"Request {number} is already {request['status']}."
-        # Store this value for subsequent validation or processing.
+        # Mark this request approved so it cannot be applied twice.
         request["status"] = "approved"
-        # Record or delegate this operation through the component’s interface.
+        # Apply the approved address through the order tool.
         self.order_tool.change_address(request["order_id"], request["new_address"])
-        # Return the result to the caller without performing terminal I/O.
+        # Confirm the approval.
         return f"Request {number} approved."
 
-    # Define reject so callers can Reject one waiting request. Nothing changes.
+    # Reject this request without applying it.
     def reject(self, number):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Reject one waiting request. Nothing changes."""
-        # Store this value for subsequent validation or processing.
+        # Find the request staff want to approve or reject.
         request = self.find(number)
-        # Check this condition before allowing the next operation.
+        # Refuse a request number that is not in the queue.
         if request is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Explain that the request number was not found.
             return f"There is no request {number}."
-        # Check this condition before allowing the next operation.
+        # Prevent a second decision on an approved or rejected request.
         if request["status"] != "waiting":
-            # Return the result to the caller without performing terminal I/O.
+            # Explain that staff have already decided this request.
             return f"Request {number} is already {request['status']}."
-        # Store this value for subsequent validation or processing.
+        # Close the request without making the proposed change.
         request["status"] = "rejected"
-        # Return the result to the caller without performing terminal I/O.
+        # Confirm the rejection.
         return f"Request {number} rejected."

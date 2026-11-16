@@ -2,27 +2,27 @@
 # Author: Minh Nguyen
 
 
-# Group this component’s state and behavior behind one interface.
+# Check every tool request before it runs.
 class Toolbox:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """Every tool request from the model comes through here and is checked."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self, order_tool, stock_tool, change_queue):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Hold the tools the model is allowed to ask for."""
-        # Save order_tool in self.order_tool for the following steps.
+        # Keep the order tool used for lookups and approved changes.
         self.order_tool = order_tool
-        # Save stock_tool in self.stock_tool for the following steps.
+        # Keep the inventory tool used for stock questions.
         self.stock_tool = stock_tool
-        # Save change_queue in self.change_queue for the following steps.
+        # Keep address requests in the approval queue.
         self.change_queue = change_queue
 
     # Pass allowed methods to the model without calling them.
     def tool_list(self):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return the tools the model may ask for. They are not called here."""
-        # Send [self.order_tool.look_up_order, self.order_tool.check_return, self.stock_tool.check_stock, self.change_queue.request_address_change] back to the caller.
+        # Advertise the permitted methods without calling them.
         return [
             self.order_tool.look_up_order,
             self.order_tool.check_return,
@@ -32,85 +32,85 @@ class Toolbox:
 
     # Check the tool name and customer arguments before running it.
     def run(self, name, arguments, history):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Check one tool request. Run the tool only if every check passes."""
-        # Check name == 'look_up_order' before choosing the next action.
+        # Route order-status requests to the order lookup.
         if name == "look_up_order":
-            # Save self.clean(arguments, 'order_id') in order_id for the following steps.
+            # Clean the order ID before checking it.
             order_id = self.clean(arguments, "order_id")
-            # Check order_id == '' before choosing the next action.
+            # Ask for the order ID when it is missing.
             if order_id == "":
-                # Send 'The order ID is missing. Ask the customer for it.' back to the caller.
+                # Ask the customer for the required details.
                 return "The order ID is missing. Ask the customer for it."
-            # Check not self.customer_said(history, order_id) before choosing the next action.
+            # Refuse an order ID the customer never supplied.
             if not self.customer_said(history, order_id):
-                # Send 'The customer has not given that order ID. Ask them for it.' back to the caller.
+                # Ask for the missing customer detail instead of using a guessed value.
                 return "The customer has not given that order ID. Ask them for it."
-            # Send self.order_tool.look_up_order(order_id) back to the caller.
+            # Return the checked result or the message the caller should display.
             return self.order_tool.look_up_order(order_id)
-        # Check name == 'check_return' before choosing the next action.
+        # Apply the same order-ID checks to return questions.
         if name == "check_return":
-            # Save self.clean(arguments, 'order_id') in order_id for the following steps.
+            # Clean the order ID before checking it.
             order_id = self.clean(arguments, "order_id")
-            # Check order_id == '' before choosing the next action.
+            # Ask for the order ID when it is missing.
             if order_id == "":
-                # Send 'The order ID is missing. Ask the customer for it.' back to the caller.
+                # Ask the customer for the required details.
                 return "The order ID is missing. Ask the customer for it."
-            # Check not self.customer_said(history, order_id) before choosing the next action.
+            # Refuse an order ID the customer never supplied.
             if not self.customer_said(history, order_id):
-                # Send 'The customer has not given that order ID. Ask them for it.' back to the caller.
+                # Ask for the missing customer detail instead of using a guessed value.
                 return "The customer has not given that order ID. Ask them for it."
-            # Send self.order_tool.check_return(order_id) back to the caller.
+            # Return the checked result or the message the caller should display.
             return self.order_tool.check_return(order_id)
-        # Check name == 'check_stock' before choosing the next action.
+        # Route stock requests to the inventory tool.
         if name == "check_stock":
-            # Save self.clean(arguments, 'item') in item for the following steps.
+            # Clean the product name before looking it up.
             item = self.clean(arguments, "item")
-            # Check item == '' before choosing the next action.
+            # Ask which product the customer wants checked.
             if item == "":
-                # Send 'The product is missing. Ask the customer which product.' back to the caller.
+                # Ask the customer for the required details.
                 return "The product is missing. Ask the customer which product."
-            # Send self.stock_tool.check_stock(item) back to the caller.
+            # Return the checked result or the message the caller should display.
             return self.stock_tool.check_stock(item)
-        # Check name == 'request_address_change' before choosing the next action.
+        # Check both customer details before queuing an address change.
         if name == "request_address_change":
-            # Save self.clean(arguments, 'order_id') in order_id for the following steps.
+            # Clean the order ID before checking it.
             order_id = self.clean(arguments, "order_id")
-            # Save self.clean(arguments, 'new_address') in new_address for the following steps.
+            # Clean the address before checking it.
             new_address = self.clean(arguments, "new_address")
-            # Check order_id == '' or new_address == '' before choosing the next action.
+            # Require both the order ID and address before proceeding.
             if order_id == "" or new_address == "":
-                # Send 'The order ID and the new address are both needed.' back to the caller.
+                # Ask the customer for the required details.
                 return "The order ID and the new address are both needed."
-            # Check not self.customer_said(history, order_id) before choosing the next action.
+            # Refuse an order ID the customer never supplied.
             if not self.customer_said(history, order_id):
-                # Send 'The customer has not given that order ID. Ask them for it.' back to the caller.
+                # Ask for the missing customer detail instead of using a guessed value.
                 return "The customer has not given that order ID. Ask them for it."
-            # Check not self.customer_said(history, new_address) before choosing the next action.
+            # Refuse an address the customer never supplied.
             if not self.customer_said(history, new_address):
-                # Send 'The customer has not given that address. Ask them for it.' back to the caller.
+                # Ask for the missing customer detail instead of using a guessed value.
                 return "The customer has not given that address. Ask them for it."
-            # Send self.change_queue.request_address_change(order_id, new_address) back to the caller.
+            # Return the checked result or the message the caller should display.
             return self.change_queue.request_address_change(order_id, new_address)
-        # Send f'There is no tool named {name}.' back to the caller.
+        # Refuse a tool that this toolbox does not expose.
         return f"There is no tool named {name}."
 
     # Return one argument as text without extra spaces, or "" if it is missing.
     def clean(self, arguments, key):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return one argument as text without extra spaces, or "" if it is missing."""
-        # Send str(arguments.get(key, '')).strip() back to the caller.
+        # Return the checked result or the message the caller should display.
         return str(arguments.get(key, "")).strip()
 
     # Return True if text appears in a message the customer typed.
     def customer_said(self, history, text):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return True if text appears in a message the customer typed."""
-        # Check each message in history.
+        # Read the conversation in order.
         for message in history:
-            # Check message['role'] == 'user' and text.lower() in message['content'].lower() before choosing the next action.
+            # Match only customer messages, ignoring capitalization.
             if message["role"] == "user" and text.lower() in message["content"].lower():
-                # Send True back to the caller.
+                # Report a match.
                 return True
-        # Send False back to the caller.
+        # Report that no match was found.
         return False

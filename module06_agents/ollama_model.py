@@ -4,82 +4,82 @@
 from ollama import ResponseError, chat
 
 
-# Group this component’s state and behavior behind one interface.
+# Translate between the chatbot and Ollama.
 class OllamaModel:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """A real AI model that runs on this computer through Ollama."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self, model_name):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Remember which model to ask."""
-        # Save model_name in self.model_name for the following steps.
+        # Remember which downloaded Ollama model to call.
         self.model_name = model_name
 
     # Send the instructions and the conversation to the model. Return its reply.
     def reply(self, instructions, history):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Send the instructions and the conversation to the model. Return its reply."""
-        # Save [{'role': 'system', 'content': instructions}] in messages for the following steps.
+        # Put the instructions first as a system message.
         messages = [{"role": "system", "content": instructions}]
-        # Save messages + history in messages for the following steps.
+        # Include earlier turns because the model has no memory between calls.
         messages = messages + history
         # Handle the expected model connection and response failures.
         try:
-            # Save chat(model=self.model_name, messages=messages) in response for the following steps.
+            # Ask Ollama for a text reply.
             response = chat(model=self.model_name, messages=messages)
         except ConnectionError:
-            # Send None back to the caller.
+            # Signal that no result is available.
             return None
         except ResponseError:
-            # Send None back to the caller.
+            # Signal that no result is available.
             return None
-        # Send response.message.content back to the caller.
+        # Extract the text from Ollama's response.
         return response.message.content
 
     # Send the conversation and the tools. Return a reply or a tool request.
     def decide(self, instructions, history, tools):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Send the conversation and the tools. Return a reply or a tool request."""
-        # Save [{'role': 'system', 'content': instructions}] in messages for the following steps.
+        # Put the instructions first as a system message.
         messages = [{"role": "system", "content": instructions}]
-        # Check each message in history.
+        # Read the conversation in order.
         for message in history:
-            # Check message['role'] == 'tool' before choosing the next action.
+            # Expand stored tool entries into Ollama's request/result format.
             if message["role"] == "tool":
-                # Save messages + self.tool_messages(message) in messages for the following steps.
+                # Add both the tool request and its result.
                 messages = messages + self.tool_messages(message)
             else:
-                # Run messages.append(message) to record or apply this step.
+                # Copy user and assistant messages into the request.
                 messages.append(message)
         # Handle the expected model connection and response failures.
         try:
-            # Save chat(model=self.model_name, messages=messages, tools=tools) in response for the following steps.
+            # Send the tool descriptions with the conversation.
             response = chat(model=self.model_name, messages=messages, tools=tools)
         except ConnectionError:
-            # Send None back to the caller.
+            # Signal that no result is available.
             return None
         except ResponseError:
-            # Send None back to the caller.
+            # Signal that no result is available.
             return None
-        # Check response.message.tool_calls before choosing the next action.
+        # Check whether the model requested a tool instead of text.
         if response.message.tool_calls:
-            # Save response.message.tool_calls[0] in call for the following steps.
+            # Handle the first requested tool; the loop can ask again.
             call = response.message.tool_calls[0]
-            # Send {'tool': call.function.name, 'arguments': call.function.arguments} back to the caller.
+            # Return the requested name and arguments for toolbox validation.
             return {"tool": call.function.name, "arguments": call.function.arguments}
-        # Send {'text': response.message.content} back to the caller.
+        # Return a text decision when no tool was requested.
         return {"text": response.message.content}
 
     # Turn one tool entry into the two messages Ollama expects.
     def tool_messages(self, message):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Turn one tool entry into the two messages Ollama expects."""
-        # Save message['tool_name'] in name for the following steps.
+        # Read the name recorded with the tool result.
         name = message["tool_name"]
-        # Save {'function': {'name': name, 'arguments': message['arguments']}} in request for the following steps.
+        # Rebuild the model's tool request so Ollama sees what it asked for.
         request = {"function": {"name": name, "arguments": message["arguments"]}}
-        # Send [{'role': 'assistant', 'content': '', 'tool_calls': [request]}, {'role': 'tool', 'tool_name': name, 'content': message['content']}] back to the caller.
+        # Send the original tool request followed by its result.
         return [
             {"role": "assistant", "content": "", "tool_calls": [request]},
             {"role": "tool", "tool_name": name, "content": message["content"]},

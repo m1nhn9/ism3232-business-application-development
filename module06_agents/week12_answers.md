@@ -1,8 +1,8 @@
 # Week 12 Answers
 
-AI assisted with these answers and the code. The experiment results below came
-from actual local-model runs. I still need to review the explanations and put
-them in words I understand before submitting.
+I used AI assistance for these answers and the code. The results below came
+from actual runs with the local model. I still need to review the explanations
+and make sure I understand them before submitting.
 
 ## Exercise 1
 
@@ -26,9 +26,9 @@ of actual delivery dates.
 
 ## Exercise 3 — actual local-model run
 
-For this isolated experiment, customer_said was overridden on one in-memory
-toolbox to always return True, equivalent to the lab's temporary return True.
-The source file kept the guardrail enabled throughout.
+For this run, customer_said was temporarily set to return True on the toolbox
+object. This had the same effect as the lab's temporary return True line,
+without changing the saved source file.
 
 ```text
 You: I want to change my shipping address
@@ -43,8 +43,8 @@ A101 3 Gull Lane
 A102 88 Pier Street
 ```
 
-The model fabricated both details when checks were disabled. Approval remained
-a second barrier: rejecting the request left every address unchanged.
+The model made up both details with the check disabled. Rejecting the request
+left every address unchanged.
 
 ## Exercise 4
 

@@ -2,29 +2,29 @@
 # Author: Minh Nguyen
 
 
-# Group this component’s state and behavior behind one interface.
+# Use a second model only when the first is unavailable.
 class FallbackModel:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """Ask the first model. If it has no answer, ask the second one."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self, first, second):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Store the two models, in the order they are asked."""
-        # Save first in self.first for the following steps.
+        # Try this model first.
         self.first = first
-        # Save second in self.second for the following steps.
+        # Use this model only when the first returns None.
         self.second = second
 
     # Return the first model's decision, or the second's if the first has none.
     def decide(self, instructions, history, tools):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Return the first model's decision, or the second's if the first has none."""
-        # Save self.first.decide(instructions, history, tools) in decision for the following steps.
+        # Try the primary model before considering the fallback.
         decision = self.first.decide(instructions, history, tools)
-        # Check decision is None before choosing the next action.
+        # Handle an unavailable model without crashing the conversation.
         if decision is None:
-            # Send self.second.decide(instructions, history, tools) back to the caller.
+            # Ask the fallback model because the primary model is unavailable.
             return self.second.decide(instructions, history, tools)
-        # Send decision back to the caller.
+        # Keep the primary model's answer when it is available.
         return decision

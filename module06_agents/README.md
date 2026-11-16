@@ -30,7 +30,7 @@ or claim to perform those actions.
 
 Piper handled “Please print essay.pdf for Dana Cruz” by filing a waiting request,
 and the real-model run accepted one job only after staff approved it.
-The checked door refused a FakeModel request naming Dana Cruz when the customer
+The toolbox refused a FakeModel request naming Dana Cruz when the customer
 had supplied only essay.pdf, leaving the queue empty.
 I added instructions to ask for the PDF filename and full name before requesting
 printing and to explain that printing still needs staff approval.
@@ -38,11 +38,10 @@ The greeting instruction tells the model to greet rather than invoke a tool.
 Refunds, cancellations, payment questions, and complaints still go to a person
 before the model is called.
 
-The bounded loop is shared by Sunny and Piper; each has its own toolbox and
-handoff rules. Queues and accepted jobs are demonstrations stored in memory
-and reset when the program exits. Staff review follows quit in both main files.
-Week 11 descriptions above are historical; Week 12 now uses decide and records
-tool results explicitly in history.
+Sunny and Piper share a loop that stops after three tool rounds. Each has its
+own toolbox and handoff rules. Requests and accepted jobs are stored in memory
+and reset when the program exits. Staff review starts after the customer types
+`quit`. Week 12 uses `decide` and records tool results in the conversation history.
 
 See [Week 12 answers](week12_answers.md) and the
 [annotated class archive](week12_ai_output.md).
@@ -86,8 +85,7 @@ purpose. The Week 10 [annotated class output](ai_output.md) and Week 11
 [annotated model output](week11_ai_output.md) are archived separately to
 document the generated class code required by both labs.
 
-Week 12 source and its updated comments are recorded in
+The Week 12 code and comments are saved in
 [week12_ai_output.md](week12_ai_output.md). I used AI assistance for the code,
-comments, written answers, and README wording. The recorded live-model results
-come from actual runs. I still need to check the explanations against my own
-understanding and be able to explain every class line myself.
+comments, answers, and README. The model results came from actual runs. I still
+need to review the explanations and be able to explain each class line myself.

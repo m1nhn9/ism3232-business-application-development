@@ -6,14 +6,14 @@ except ImportError:
     from chatbot import SupportChatbot
 
 
-# Group this component’s state and behavior behind one interface.
+# Use the shared conversation loop with print-desk handoff rules.
 class PrintShopAssistant(SupportChatbot):
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """Reuse the bounded tool loop with print-shop handoff rules."""
 
     # Catch sensitive requests before asking the model.
     def needs_human(self, text):
-        # Send any((word in text for word in ['refund', 'cancel', 'payment', 'card', 'complaint'])) back to the caller.
+        # Return the checked result or the message the caller should display.
         return any(
             word in text
             for word in ["refund", "cancel", "payment", "card", "complaint"]

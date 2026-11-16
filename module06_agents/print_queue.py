@@ -1,30 +1,30 @@
 """Staff-reviewed print requests."""
 
 
-# Group this component’s state and behavior behind one interface.
+# Hold proposed print jobs until staff approve them.
 class PrintQueue:
-    # Document the interface for readers and tool-description generation.
+    # Describe this class or method for callers.
     """Keep proposed jobs separate from approved jobs."""
 
-    # Store the components and start fresh state for this instance.
+    # Keep the supplied data and start fresh state.
     def __init__(self):
-        # Save [] in self.requests for the following steps.
+        # Start with no requests waiting for staff.
         self.requests = []
-        # Save [] in self.jobs for the following steps.
+        # Keep accepted jobs separate from proposed jobs.
         self.jobs = []
 
     # Ask staff to accept a print job; nothing is printed yet.
     def request_print_job(self, document, customer):
-        # Document the interface for readers and tool-description generation.
+        # Describe this class or method for callers.
         """Ask staff to accept a print job; nothing is printed yet.
 
         Args:
             document: The PDF filename supplied by the customer.
             customer: The customer's full name.
         """
-        # Save len(self.requests) + 1 in number for the following steps.
+        # Give the new request the next available number.
         number = len(self.requests) + 1
-        # Run self.requests.append({'number': number, 'document': document, 'customer': customer, 'status': 'waiting'}) to record or apply this step.
+        # Save the proposed print job for staff to review.
         self.requests.append(
             {
                 "number": number,
@@ -33,48 +33,48 @@ class PrintQueue:
                 "status": "waiting",
             }
         )
-        # Send f'Request {number} sent to staff. Nothing has been printed yet.' back to the caller.
+        # Confirm the request is queued and still needs staff approval.
         return f"Request {number} sent to staff. Nothing has been printed yet."
 
     # List undecided requests so staff can review them.
     def waiting(self):
-        # Send [r for r in self.requests if r['status'] == 'waiting'] back to the caller.
+        # Return only requests that still need staff review.
         return [r for r in self.requests if r["status"] == "waiting"]
 
     # Apply a waiting request once; refuse missing or completed requests.
     def approve(self, number):
-        # Save next((r for r in self.requests if r['number'] == number), None) in request for the following steps.
+        # Find the numbered request, or use None if it does not exist.
         request = next((r for r in self.requests if r["number"] == number), None)
-        # Check request is None before choosing the next action.
+        # Refuse a request number that is not in the queue.
         if request is None:
-            # Send f'There is no request {number}.' back to the caller.
+            # Explain that the request number was not found.
             return f"There is no request {number}."
-        # Check request['status'] != 'waiting' before choosing the next action.
+        # Prevent a second decision on an approved or rejected request.
         if request["status"] != "waiting":
-            # Send f"Request {number} is already {request['status']}." back to the caller.
+            # Explain that staff have already decided this request.
             return f"Request {number} is already {request['status']}."
-        # Run self.jobs.append({'document': request['document'], 'customer': request['customer']}) to record or apply this step.
+        # Accept this job only after staff approval.
         self.jobs.append(
             {"document": request["document"], "customer": request["customer"]}
         )
-        # Save 'approved' in request['status'] for the following steps.
+        # Mark this request approved so it cannot be applied twice.
         request["status"] = "approved"
-        # Send f'Request {number} approved.' back to the caller.
+        # Confirm the approval.
         return f"Request {number} approved."
 
     # Reject a waiting request without applying its change.
     def reject(self, number):
-        # Save next((r for r in self.requests if r['number'] == number), None) in request for the following steps.
+        # Find the numbered request, or use None if it does not exist.
         request = next((r for r in self.requests if r["number"] == number), None)
-        # Check request is None before choosing the next action.
+        # Refuse a request number that is not in the queue.
         if request is None:
-            # Send f'There is no request {number}.' back to the caller.
+            # Explain that the request number was not found.
             return f"There is no request {number}."
-        # Check request['status'] != 'waiting' before choosing the next action.
+        # Prevent a second decision on an approved or rejected request.
         if request["status"] != "waiting":
-            # Send f"Request {number} is already {request['status']}." back to the caller.
+            # Explain that staff have already decided this request.
             return f"Request {number} is already {request['status']}."
-        # Save 'rejected' in request['status'] for the following steps.
+        # Close the request without making the proposed change.
         request["status"] = "rejected"
-        # Send f'Request {number} rejected.' back to the caller.
+        # Confirm the rejection.
         return f"Request {number} rejected."
