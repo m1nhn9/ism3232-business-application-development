@@ -4,6 +4,9 @@
 
 # Define an independent stock tool so the chatbot does not own inventory data.
 class StockLookup:
+    # Describe the inventory tool before defining its methods.
+    """Find known products and read their stock counts."""
+
     # Define check_stock so callers can Check how many of one product are in stock.
     def check_stock(self, item):
         # Document the interface for readers and tool-description generation.
@@ -20,9 +23,6 @@ class StockLookup:
             return "That product was not found."
         # Return the result to the caller without performing terminal I/O.
         return f"We have {self.count_for(product)} of the {product} in stock."
-
-    # Explain the tool's responsibility for readers and help().
-    """Find known products and read their stock counts."""
 
     # Accept inventory during construction so different callers can supply it.
     def __init__(self, stock):

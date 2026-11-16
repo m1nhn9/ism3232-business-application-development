@@ -7,38 +7,38 @@ class OrderLookup:
     # Document the interface for readers and tool-description generation.
     """A tool that knows about orders. It knows nothing about chatting."""
 
-    # Define __init__ so callers can Store the orders this tool can look up.
+    # Store the components and start fresh state for this instance.
     def __init__(self, orders):
         # Document the interface for readers and tool-description generation.
         """Store the orders this tool can look up."""
-        # Store this value for subsequent validation or processing.
+        # Save orders in self.orders for the following steps.
         self.orders = orders
 
-    # Define find_order_id so callers can Return the first known order ID mentioned in text, or None.
+    # Return the first known order ID mentioned in text, or None.
     def find_order_id(self, text):
         # Document the interface for readers and tool-description generation.
         """Return the first known order ID mentioned in text, or None."""
-        # Process the collection or bounded loop in a controlled order.
+        # Check each order_id in self.orders.
         for order_id in self.orders:
-            # Check this condition before allowing the next operation.
+            # Check order_id in text.upper() before choosing the next action.
             if order_id in text.upper():
-                # Return the result to the caller without performing terminal I/O.
+                # Send order_id back to the caller.
                 return order_id
-        # Return the result to the caller without performing terminal I/O.
+        # Send None back to the caller.
         return None
 
-    # Define find_status so callers can Return the status of one order, or None if there is no such order.
+    # Return the status of one order, or None if there is no such order.
     def find_status(self, order_id):
         # Document the interface for readers and tool-description generation.
         """Return the status of one order, or None if there is no such order."""
-        # Check this condition before allowing the next operation.
+        # Check order_id in self.orders before choosing the next action.
         if order_id in self.orders:
-            # Return the result to the caller without performing terminal I/O.
+            # Send self.orders[order_id]['status'] back to the caller.
             return self.orders[order_id]["status"]
-        # Return the result to the caller without performing terminal I/O.
+        # Send None back to the caller.
         return None
 
-    # Define look_up_order so callers can Look up the status of one order.
+    # Look up the status of one order.
     def look_up_order(self, order_id):
         # Document the interface for readers and tool-description generation.
         """Look up the status of one order.
@@ -46,23 +46,23 @@ class OrderLookup:
         Args:
             order_id: The order ID, like A100.
         """
-        # Store this value for subsequent validation or processing.
+        # Save self.find_order_id(order_id) in found for the following steps.
         found = self.find_order_id(order_id)
-        # Check this condition before allowing the next operation.
+        # Check found is None before choosing the next action.
         if found is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Send 'No order with that ID was found. Order IDs look like A100.' back to the caller.
             return "No order with that ID was found. Order IDs look like A100."
-        # Return the result to the caller without performing terminal I/O.
+        # Send f'Order {found} is {self.find_status(found)}.' back to the caller.
         return f"Order {found} is {self.find_status(found)}."
 
-    # Define change_address so callers can Change the shipping address on one order. Only an approval calls this.
+    # Change the shipping address on one order. Only an approval calls this.
     def change_address(self, order_id, new_address):
         # Document the interface for readers and tool-description generation.
         """Change the shipping address on one order. Only an approval calls this."""
-        # Store this value for subsequent validation or processing.
+        # Save new_address in self.orders[order_id]['address'] for the following steps.
         self.orders[order_id]["address"] = new_address
 
-    # Define check_return so callers can Say whether one order can be returned yet.
+    # Say whether one order can be returned yet.
     def check_return(self, order_id):
         # Document the interface for readers and tool-description generation.
         """Say whether one order can be returned yet.
@@ -70,15 +70,15 @@ class OrderLookup:
         Args:
             order_id: The order ID, like A100.
         """
-        # Store this value for subsequent validation or processing.
+        # Save self.find_order_id(order_id) in found for the following steps.
         found = self.find_order_id(order_id)
-        # Check this condition before allowing the next operation.
+        # Check found is None before choosing the next action.
         if found is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Send 'No order with that ID was found. Order IDs look like A100.' back to the caller.
             return "No order with that ID was found. Order IDs look like A100."
-        # Check this condition before allowing the next operation.
+        # Check self.find_status(found) == 'delivered' before choosing the next action.
         if self.find_status(found) == "delivered":
-            # Return the result to the caller without performing terminal I/O.
+            # Send f'Order {found} was delivered, so it can be returned within 30 days.' back to the caller.
             return f"Order {found} was delivered, so it can be returned within 30 days."
-        # Return the result to the caller without performing terminal I/O.
+        # Send f'Order {found} has not been delivered, so it cannot be returned yet.' back to the caller.
         return f"Order {found} has not been delivered, so it cannot be returned yet."

@@ -1,5 +1,9 @@
 # Week 12 Answers
 
+AI assisted with these answers and the code. The experiment results below came
+from actual local-model runs. I still need to review the explanations and put
+them in words I understand before submitting.
+
 ## Exercise 1
 
 1. The customer typed: “I want to change my shipping address”, “It's order A102”,

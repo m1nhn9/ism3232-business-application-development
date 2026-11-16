@@ -10,85 +10,85 @@ class SupportChatbot:
     # Document the interface for readers and tool-description generation.
     """A support chatbot. The model decides. The toolbox checks every tool request."""
 
-    # Define __init__ so callers can Set up one chatbot with its own name, instructions, tools, model, and history.
+    # Store the components and start fresh state for this instance.
     def __init__(self, name, instructions, tools, model):
         # Document the interface for readers and tool-description generation.
         """Set up one chatbot with its own name, instructions, tools, model, and history."""
-        # Store this value for subsequent validation or processing.
+        # Save name in self.name for the following steps.
         self.name = name
-        # Store this value for subsequent validation or processing.
+        # Save instructions in self.instructions for the following steps.
         self.instructions = instructions
-        # Store this value for subsequent validation or processing.
+        # Save tools in self.tools for the following steps.
         self.tools = tools
-        # Store this value for subsequent validation or processing.
+        # Save model in self.model for the following steps.
         self.model = model
-        # Store this value for subsequent validation or processing.
+        # Save [] in self.history for the following steps.
         self.history = []
 
-    # Define respond so callers can Record the user's message, choose a reply, record it, and return it.
+    # Record the user's message, choose a reply, record it, and return it.
     def respond(self, user_message):
         # Document the interface for readers and tool-description generation.
         """Record the user's message, choose a reply, record it, and return it."""
-        # Record or delegate this operation through the component’s interface.
+        # Run self.history.append({'role': 'user', 'content': user_message}) to record or apply this step.
         self.history.append({"role": "user", "content": user_message})
-        # Store this value for subsequent validation or processing.
+        # Save self.choose_reply(user_message) in reply for the following steps.
         reply = self.choose_reply(user_message)
-        # Record or delegate this operation through the component’s interface.
+        # Run self.history.append({'role': 'assistant', 'content': reply}) to record or apply this step.
         self.history.append({"role": "assistant", "content": reply})
-        # Return the result to the caller without performing terminal I/O.
+        # Send reply back to the caller.
         return reply
 
-    # Define choose_reply so callers can Pass payment questions to a person. Send everything else to the model.
+    # Pass payment questions to a person. Send everything else to the model.
     def choose_reply(self, user_message):
         # Document the interface for readers and tool-description generation.
         """Pass payment questions to a person. Send everything else to the model."""
-        # Check this condition before allowing the next operation.
+        # Check self.needs_human(user_message.lower()) before choosing the next action.
         if self.needs_human(user_message.lower()):
-            # Return the result to the caller without performing terminal I/O.
+            # Send "I can't help with that here. I'm passing you to a human agent." back to the caller.
             return "I can't help with that here. I'm passing you to a human agent."
-        # Return the result to the caller without performing terminal I/O.
+        # Send self.model_reply() back to the caller.
         return self.model_reply()
 
-    # Define needs_human so callers can Return True if the message is about something a person must handle.
+    # Catch sensitive requests before asking the model.
     def needs_human(self, text):
         # Document the interface for readers and tool-description generation.
         """Return True if the message is about something a person must handle."""
-        # Process the collection or bounded loop in a controlled order.
+        # Check each word in HANDOFF_WORDS.
         for word in HANDOFF_WORDS:
-            # Check this condition before allowing the next operation.
+            # Check word in text before choosing the next action.
             if word in text:
-                # Return the result to the caller without performing terminal I/O.
+                # Send True back to the caller.
                 return True
-        # Return the result to the caller without performing terminal I/O.
+        # Send False back to the caller.
         return False
 
-    # Define model_reply so callers can Ask the model. Run each tool it asks for, then ask again, up to a limit.
+    # Ask the model. Run each tool it asks for, then ask again, up to a limit.
     def model_reply(self):
         # Document the interface for readers and tool-description generation.
         """Ask the model. Run each tool it asks for, then ask again, up to a limit."""
-        # Store this value for subsequent validation or processing.
+        # Save 0 in rounds for the following steps.
         rounds = 0
-        # Process the collection or bounded loop in a controlled order.
+        # Limit tool rounds with rounds < MAX_TOOL_ROUNDS to prevent an endless loop.
         while rounds < MAX_TOOL_ROUNDS:
-            # Store this value for subsequent validation or processing.
+            # Save self.tools.tool_list() in tool_list for the following steps.
             tool_list = self.tools.tool_list()
-            # Store this value for subsequent validation or processing.
+            # Save self.model.decide(self.instructions, self.history, tool_list) in decision for the following steps.
             decision = self.model.decide(self.instructions, self.history, tool_list)
-            # Check this condition before allowing the next operation.
+            # Check decision is None before choosing the next action.
             if decision is None:
-                # Return the result to the caller without performing terminal I/O.
+                # Send "Sorry, I can't answer that right now. Please try again in a moment." back to the caller.
                 return "Sorry, I can't answer that right now. Please try again in a moment."
-            # Check this condition before allowing the next operation.
+            # Check 'text' in decision before choosing the next action.
             if "text" in decision:
-                # Return the result to the caller without performing terminal I/O.
+                # Send decision['text'] back to the caller.
                 return decision["text"]
-            # Store this value for subsequent validation or processing.
+            # Save decision['tool'] in name for the following steps.
             name = decision["tool"]
-            # Store this value for subsequent validation or processing.
+            # Save decision['arguments'] in arguments for the following steps.
             arguments = decision["arguments"]
-            # Store this value for subsequent validation or processing.
+            # Save self.tools.run(name, arguments, self.history) in result for the following steps.
             result = self.tools.run(name, arguments, self.history)
-            # Record or delegate this operation through the component’s interface.
+            # Run self.history.append({'role': 'tool', 'tool_name': name, 'arguments': arguments, 'content': result}) to record or apply this step.
             self.history.append(
                 {
                     "role": "tool",
@@ -97,22 +97,22 @@ class SupportChatbot:
                     "content": result,
                 }
             )
-            # Advance the running count to track progress.
+            # Count this completed step with rounds += 1.
             rounds += 1
-        # Return the result to the caller without performing terminal I/O.
+        # Send "Sorry, I couldn't finish that. I'm passing you to a human agent." back to the caller.
         return "Sorry, I couldn't finish that. I'm passing you to a human agent."
 
-    # Define count_user_messages so callers can Return how many messages the user has sent so far.
+    # Return how many messages the user has sent so far.
     def count_user_messages(self):
         # Document the interface for readers and tool-description generation.
         """Return how many messages the user has sent so far."""
-        # Store this value for subsequent validation or processing.
+        # Save 0 in count for the following steps.
         count = 0
-        # Process the collection or bounded loop in a controlled order.
+        # Check each message in self.history.
         for message in self.history:
-            # Check this condition before allowing the next operation.
+            # Check message['role'] == 'user' before choosing the next action.
             if message["role"] == "user":
-                # Advance the running count to track progress.
+                # Count this completed step with count += 1.
                 count += 1
-        # Return the result to the caller without performing terminal I/O.
+        # Send count back to the caller.
         return count

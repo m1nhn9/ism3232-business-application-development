@@ -6,10 +6,10 @@ Campus Print Desk is a fictional campus print shop, and Piper answers FAQs about
 its hours, pricing, and pickup process using a separate `FAQBook` tool.
 The assistant stores the tool, model, name, instructions, and its own history,
 recording both the user and assistant message for each turn.
-Verified FAQ replies use a small dictionary, and other language questions go
-to the local `granite4.1:3b` model through Ollama.
+The local `granite4.1:3b` model chooses tools, and the toolbox checks each
+request before reading a verified FAQ or queuing a print job for staff approval.
 Refunds, cancellations, payment or card issues, and complaints go to print desk
-staff because this read-only assistant cannot verify account ownership, change
+staff because this assistant cannot verify account ownership, change
 orders, or resolve disputes.
 With real customer data, keeping conversation histories containing student IDs
 or payment details without access and retention controls could expose private
@@ -25,8 +25,6 @@ inventing a service. Hours, pricing, and pickup answers stay in the `FAQBook`
 because those facts must be exact. Refunds, cancellations, payments, cards,
 and complaints stay in code as staff handoffs because a model must not approve
 or claim to perform those actions.
-
-## Run
 
 ## Week 12 Tools and Approval
 
@@ -51,6 +49,10 @@ See [Week 12 answers](week12_answers.md) and the
 
 ## Running the Programs
 
+Install and start Ollama, then run `ollama pull granite4.1:3b` for the real-model
+conversations. Sunny uses KeywordModel when Ollama is unavailable, as required
+by Exercise 4. Piper returns a safe retry message when its model is unavailable.
+
 From this directory:
 
 ```sh
@@ -67,7 +69,7 @@ Both interactive programs stop when the user types `quit`; the command itself
 is not added to conversation history. Staff handoffs are directions to contact
 a person, not a claim that the assistant submitted a ticket or changed an account.
 
-## Exercises
+## Week 10 Exercises (Historical)
 
 - [Exercise 1](exercise1.md) labels the original class parts and notes the later
   stock-tool addition.
@@ -83,3 +85,9 @@ Every nonblank class source line has a comment explaining its operation and
 purpose. The Week 10 [annotated class output](ai_output.md) and Week 11
 [annotated model output](week11_ai_output.md) are archived separately to
 document the generated class code required by both labs.
+
+Week 12 source and its updated comments are recorded in
+[week12_ai_output.md](week12_ai_output.md). I used AI assistance for the code,
+comments, written answers, and README wording. The recorded live-model results
+come from actual runs. I still need to check the explanations against my own
+understanding and be able to explain every class line myself.

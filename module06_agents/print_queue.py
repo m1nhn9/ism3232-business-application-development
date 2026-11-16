@@ -6,14 +6,14 @@ class PrintQueue:
     # Document the interface for readers and tool-description generation.
     """Keep proposed jobs separate from approved jobs."""
 
-    # Define __init__ so callers can   init  .
+    # Store the components and start fresh state for this instance.
     def __init__(self):
-        # Store this value for subsequent validation or processing.
+        # Save [] in self.requests for the following steps.
         self.requests = []
-        # Store this value for subsequent validation or processing.
+        # Save [] in self.jobs for the following steps.
         self.jobs = []
 
-    # Define request_print_job so callers can Ask staff to accept a print job; nothing is printed yet.
+    # Ask staff to accept a print job; nothing is printed yet.
     def request_print_job(self, document, customer):
         # Document the interface for readers and tool-description generation.
         """Ask staff to accept a print job; nothing is printed yet.
@@ -22,9 +22,9 @@ class PrintQueue:
             document: The PDF filename supplied by the customer.
             customer: The customer's full name.
         """
-        # Store this value for subsequent validation or processing.
+        # Save len(self.requests) + 1 in number for the following steps.
         number = len(self.requests) + 1
-        # Record or delegate this operation through the component’s interface.
+        # Run self.requests.append({'number': number, 'document': document, 'customer': customer, 'status': 'waiting'}) to record or apply this step.
         self.requests.append(
             {
                 "number": number,
@@ -33,48 +33,48 @@ class PrintQueue:
                 "status": "waiting",
             }
         )
-        # Return the result to the caller without performing terminal I/O.
+        # Send f'Request {number} sent to staff. Nothing has been printed yet.' back to the caller.
         return f"Request {number} sent to staff. Nothing has been printed yet."
 
-    # Define waiting so callers can waiting.
+    # List undecided requests so staff can review them.
     def waiting(self):
-        # Return the result to the caller without performing terminal I/O.
+        # Send [r for r in self.requests if r['status'] == 'waiting'] back to the caller.
         return [r for r in self.requests if r["status"] == "waiting"]
 
-    # Define approve so callers can approve.
+    # Apply a waiting request once; refuse missing or completed requests.
     def approve(self, number):
-        # Store this value for subsequent validation or processing.
+        # Save next((r for r in self.requests if r['number'] == number), None) in request for the following steps.
         request = next((r for r in self.requests if r["number"] == number), None)
-        # Check this condition before allowing the next operation.
+        # Check request is None before choosing the next action.
         if request is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Send f'There is no request {number}.' back to the caller.
             return f"There is no request {number}."
-        # Check this condition before allowing the next operation.
+        # Check request['status'] != 'waiting' before choosing the next action.
         if request["status"] != "waiting":
-            # Return the result to the caller without performing terminal I/O.
+            # Send f"Request {number} is already {request['status']}." back to the caller.
             return f"Request {number} is already {request['status']}."
-        # Record or delegate this operation through the component’s interface.
+        # Run self.jobs.append({'document': request['document'], 'customer': request['customer']}) to record or apply this step.
         self.jobs.append(
             {"document": request["document"], "customer": request["customer"]}
         )
-        # Store this value for subsequent validation or processing.
+        # Save 'approved' in request['status'] for the following steps.
         request["status"] = "approved"
-        # Return the result to the caller without performing terminal I/O.
+        # Send f'Request {number} approved.' back to the caller.
         return f"Request {number} approved."
 
-    # Define reject so callers can reject.
+    # Reject a waiting request without applying its change.
     def reject(self, number):
-        # Store this value for subsequent validation or processing.
+        # Save next((r for r in self.requests if r['number'] == number), None) in request for the following steps.
         request = next((r for r in self.requests if r["number"] == number), None)
-        # Check this condition before allowing the next operation.
+        # Check request is None before choosing the next action.
         if request is None:
-            # Return the result to the caller without performing terminal I/O.
+            # Send f'There is no request {number}.' back to the caller.
             return f"There is no request {number}."
-        # Check this condition before allowing the next operation.
+        # Check request['status'] != 'waiting' before choosing the next action.
         if request["status"] != "waiting":
-            # Return the result to the caller without performing terminal I/O.
+            # Send f"Request {number} is already {request['status']}." back to the caller.
             return f"Request {number} is already {request['status']}."
-        # Store this value for subsequent validation or processing.
+        # Save 'rejected' in request['status'] for the following steps.
         request["status"] = "rejected"
-        # Return the result to the caller without performing terminal I/O.
+        # Send f'Request {number} rejected.' back to the caller.
         return f"Request {number} rejected."

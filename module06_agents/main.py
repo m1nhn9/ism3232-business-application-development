@@ -3,6 +3,8 @@
 
 from change_queue import ChangeQueue
 from chatbot import SupportChatbot
+from fallback_model import FallbackModel
+from keyword_model import KeywordModel
 from ollama_model import OllamaModel
 from order_tool import OrderLookup
 from stock_tool import StockLookup
@@ -33,7 +35,7 @@ order_tool = OrderLookup(ORDERS)
 stock_tool = StockLookup(STOCK)
 change_queue = ChangeQueue(order_tool)
 tools = Toolbox(order_tool, stock_tool, change_queue)
-model = OllamaModel(MODEL_NAME)
+model = FallbackModel(OllamaModel(MODEL_NAME), KeywordModel())
 bot = SupportChatbot("Sunny", INSTRUCTIONS, tools, model)
 
 print("Type a message, or type quit to stop.")

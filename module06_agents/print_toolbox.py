@@ -6,57 +6,57 @@ class PrintToolbox:
     # Document the interface for readers and tool-description generation.
     """Validate customer details before dispatching a tool."""
 
-    # Define __init__ so callers can   init  .
+    # Store the components and start fresh state for this instance.
     def __init__(self, faq_tool, queue):
-        # Store this value for subsequent validation or processing.
+        # Save faq_tool in self.faq_tool for the following steps.
         self.faq_tool = faq_tool
-        # Store this value for subsequent validation or processing.
+        # Save queue in self.queue for the following steps.
         self.queue = queue
 
-    # Define tool_list so callers can tool list.
+    # Pass allowed methods to the model without calling them.
     def tool_list(self):
-        # Return the result to the caller without performing terminal I/O.
+        # Send [self.faq_tool.check_faq, self.queue.request_print_job] back to the caller.
         return [self.faq_tool.check_faq, self.queue.request_print_job]
 
-    # Define run so callers can run.
+    # Check the tool name and customer arguments before running it.
     def run(self, name, arguments, history):
-        # Check this condition before allowing the next operation.
+        # Check name == 'check_faq' before choosing the next action.
         if name == "check_faq":
-            # Store this value for subsequent validation or processing.
+            # Save ['topic'] in keys for the following steps.
             keys = ["topic"]
-        # Check this condition before allowing the next operation.
+        # Check name == 'request_print_job' before choosing the next action.
         elif name == "request_print_job":
-            # Store this value for subsequent validation or processing.
+            # Save ['document', 'customer'] in keys for the following steps.
             keys = ["document", "customer"]
         else:
-            # Return the result to the caller without performing terminal I/O.
+            # Send f'There is no tool named {name}.' back to the caller.
             return f"There is no tool named {name}."
-        # Store this value for subsequent validation or processing.
+        # Save {} in values for the following steps.
         values = {}
-        # Process the collection or bounded loop in a controlled order.
+        # Check each key in keys.
         for key in keys:
-            # Store this value for subsequent validation or processing.
+            # Save str(arguments.get(key) or '').strip() in value for the following steps.
             value = str(arguments.get(key) or "").strip()
-            # Check this condition before allowing the next operation.
+            # Check not value before choosing the next action.
             if not value:
-                # Return the result to the caller without performing terminal I/O.
+                # Send f'The {key} is missing. Ask the customer for it.' back to the caller.
                 return f"The {key} is missing. Ask the customer for it."
-            # Check this condition before allowing the next operation.
+            # Check not any((m['role'] == 'user' and value.lower() in m['content'].lower() for m in history)) before choosing the next action.
             if not any(
                 m["role"] == "user" and value.lower() in m["content"].lower()
                 for m in history
             ):
-                # Return the result to the caller without performing terminal I/O.
+                # Send f'The customer has not given that {key}. Ask them for it.' back to the caller.
                 return f"The customer has not given that {key}. Ask them for it."
-            # Store this value for subsequent validation or processing.
+            # Save value in values[key] for the following steps.
             values[key] = value
-        # Check this condition before allowing the next operation.
+        # Check name == 'check_faq' before choosing the next action.
         if name == "check_faq":
-            # Return the result to the caller without performing terminal I/O.
+            # Send self.faq_tool.check_faq(**values) back to the caller.
             return self.faq_tool.check_faq(**values)
-        # Check this condition before allowing the next operation.
+        # Check not values['document'].lower().endswith('.pdf') before choosing the next action.
         if not values["document"].lower().endswith(".pdf"):
-            # Return the result to the caller without performing terminal I/O.
+            # Send 'Please supply a PDF filename.' back to the caller.
             return "Please supply a PDF filename."
-        # Return the result to the caller without performing terminal I/O.
+        # Send self.queue.request_print_job(**values) back to the caller.
         return self.queue.request_print_job(**values)
