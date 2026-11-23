@@ -1,10 +1,35 @@
 # ISM3232: Business Application Development
 
-Coursework is organized by the course modules used throughout ISM3232. Each
-module keeps its source, exercises, documentation, tests, and local dependency
-information together.
+This repository preserves the original combined coursework and commit history.
+The completed modules have now been copied into separate repositories to match
+the lab folder boundaries. Use the links below for module submissions.
 
-## Repository Structure
+## Separate Module Repositories
+
+| Weeks | Course folder | Repository | Status |
+| --- | --- | --- | --- |
+| 1 | `module01_setup` | No repository required by Lab 1 | File uploads |
+| 2–4 | `module02_zsh` | [ism3232-module02](https://github.com/m1nhn9/ism3232-module02) | Private, as Lab 4 specifies |
+| 5–6 | `module04_programming` | [ism3232-module04](https://github.com/m1nhn9/ism3232-module04) | Public, imported and tested |
+| 7–8 | `module05_functions` | [ism3232-module05](https://github.com/m1nhn9/ism3232-module05) | Public, imported and tested |
+| 10–12 | `module06_agents` | [ism3232-module06](https://github.com/m1nhn9/ism3232-module06) | Public, imported and tested |
+| 13–16 | `module07_final_project` | [ism3232-module07](https://github.com/m1nhn9/ism3232-module07) | Empty public repository; Week 13 draft held locally for review |
+
+Week 4 covers Git while working in `module02_zsh`; it does not create a
+separate Module 3 repository. Week 9 is the midterm. The existing midterm
+repository was not changed.
+
+The standalone repositories put the module's files at the repository root.
+Relevant history was extracted with original authors and messages; commit IDs
+changed because their trees and parent histories changed. Each repository also
+has a migration commit for its standalone imports and run instructions.
+No coursework was removed from this archive.
+
+The completed local checkouts are under `/Users/hoo/ism3232-separated/`.
+The uncommitted capstone draft remains in this workspace's ignored
+`module07_final_project/` folder. It has an origin remote but has not been pushed.
+
+## Original Archive Structure
 
 | Module | Topics | Coursework |
 | --- | --- | --- |
